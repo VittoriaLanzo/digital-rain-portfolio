@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import CityScene from '@/components/CityScene';
 import CustomCursor from '@/components/CustomCursor';
 import HeroDistrict from '@/components/HeroDistrict';
-import { ABOUT, SKILLS, WORK } from '@/content/sections';
+// sections data no longer needed here — content lives in section pages and 3D stalls
 
 /* ─── Nav dot definitions ──────────────────────────────────────────────── */
 const NAV_DOTS = [
@@ -69,16 +69,12 @@ export default function Index() {
         <HeroDistrict />
       </div>
 
-      {/* ─── Glass Panels ───────────────────────────────────────────────────
-           Timing derived from camera path z(t)=30-231.25t vs stall positions.
-           Windows use stall midpoints as boundaries → only ONE panel visible.
-           About   stall z=-20  →  panel: 0.09–0.29
-           Skills  stall z=-55  →  panel: 0.29–0.44
-           Work    stall z=-90  →  panel: 0.44–0.59
+      {/* ─── Panels ─────────────────────────────────────────────────────────
+           Navigation is handled entirely by the physical 3D stalls in the
+           scene (NavigationStalls in CityScene.tsx). The 2D glass-panel
+           overlays have been removed — the stalls ARE the panels.
+           Note: in chat these are still referred to as "panels" for simplicity.
       ─────────────────────────────────────────────────────────────────── */}
-      <AboutPanel  visible={sp >= 0.09 && sp < 0.29} onEnter={() => navigate('/about')} />
-      <SkillsPanel visible={sp >= 0.29 && sp < 0.44} onEnter={() => navigate('/skills')} />
-      <WorkPanel   visible={sp >= 0.44 && sp < 0.59} onEnter={() => navigate('/work')} />
 
       {/* ─── Nav Dots ─── */}
       <NavDots sp={sp} onNavigate={scrollToProgress} />
@@ -106,205 +102,6 @@ export default function Index() {
       <ScrollHint         visible={sp >= 0.82 && sp < 0.93} />
       <BillboardFormOverlay visible={sp > 0.92} />
     </div>
-  );
-}
-
-/* ═══════════════════════════════════════
-   GLASS PANEL (shared wrapper)
-   ═══════════════════════════════════════ */
-
-interface GlassPanelProps {
-  visible: boolean;
-  side: 'left' | 'right';
-  /** Which side the 3D stall is on — arrow points that way */
-  stallSide: 'left' | 'right';
-  /** Accent color for the Enter button + top glow line */
-  color: string;
-  /** Called when the user clicks "Enter ↗" */
-  onEnter: () => void;
-  children: React.ReactNode;
-}
-
-function GlassPanel({ visible, side, stallSide, color, onEnter, children }: GlassPanelProps) {
-  const arrowDir = stallSide === 'left' ? '←' : '→';
-
-  return (
-    <div style={{
-      position: 'fixed',
-      bottom: '24px',
-      left:  side === 'left'  ? '24px' : 'auto',
-      right: side === 'right' ? '24px' : 'auto',
-      transform: visible
-        ? 'translateX(0)'
-        : `translateX(${side === 'left' ? '-120%' : '120%'})`,
-      opacity: visible ? 1 : 0,
-      transition: 'transform 600ms cubic-bezier(0.16, 1, 0.3, 1), opacity 400ms ease',
-      pointerEvents: visible ? 'auto' : 'none',
-      zIndex: 50,
-      width: '340px',
-      maxWidth: '38vw',
-      maxHeight: '54vh',
-      overflowY: 'auto',
-      background: 'rgba(5, 5, 18, 0.84)',
-      backdropFilter: 'blur(20px)',
-      WebkitBackdropFilter: 'blur(20px)',
-      border: '1px solid rgba(110, 110, 255, 0.18)',
-      borderRadius: '8px',
-      boxShadow: '0 0 0 1px rgba(255,255,255,0.03), 0 -4px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)',
-    }}>
-      {/* Top glow line */}
-      <div style={{ height: '1px', background: `linear-gradient(90deg, transparent, ${color}55, transparent)` }} />
-
-      <div style={{ padding: '20px 24px' }}>
-        {children}
-
-        {/* ── Enter CTA ── */}
-        <button
-          onClick={onEnter}
-          style={{
-            marginTop: '20px',
-            width: '100%',
-            background: 'transparent',
-            border: `1px solid ${color}44`,
-            borderRadius: '5px',
-            color,
-            fontFamily: "'Syne', sans-serif",
-            fontSize: '11px',
-            letterSpacing: '0.2em',
-            padding: '9px 0',
-            cursor: 'pointer',
-            transition: 'background 200ms, border-color 200ms',
-          }}
-          onMouseEnter={e => {
-            (e.currentTarget as HTMLElement).style.background = `${color}18`;
-            (e.currentTarget as HTMLElement).style.borderColor = color;
-          }}
-          onMouseLeave={e => {
-            (e.currentTarget as HTMLElement).style.background = 'transparent';
-            (e.currentTarget as HTMLElement).style.borderColor = `${color}44`;
-          }}
-        >
-          ENTER ↗
-        </button>
-      </div>
-
-      {/* Stall locator arrow */}
-      <div style={{
-        position: 'absolute',
-        top: '50%', transform: 'translateY(-50%)',
-        [stallSide === 'left' ? 'left' : 'right']: '-36px',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px',
-        pointerEvents: 'none',
-      }}>
-        <div style={{
-          fontFamily: "'Syne', sans-serif", fontSize: '18px',
-          color: '#6E6EFF', opacity: 0.7,
-          animation: `stallArrowPulse${stallSide} 1.6s ease-in-out infinite`,
-        }}>{arrowDir}</div>
-        <div style={{
-          fontFamily: "'Inter', sans-serif", fontSize: '7px',
-          color: '#44445A', letterSpacing: '0.1em', textTransform: 'uppercase',
-          writingMode: 'vertical-lr',
-          transform: stallSide === 'left' ? 'rotate(180deg)' : 'none',
-        }}>panel</div>
-      </div>
-      <style>{`
-        @keyframes stallArrowPulse${stallSide} {
-          0%, 100% { opacity: 0.4; transform: translateY(-50%) translateX(0); }
-          50% { opacity: 1; transform: translateY(-50%) translateX(${stallSide === 'left' ? '-4px' : '4px'}); }
-        }
-      `}</style>
-    </div>
-  );
-}
-
-function SectionLabel({ label, color = '#44445A' }: { label: string; color?: string }) {
-  return (
-    <div style={{
-      fontFamily: "'Syne', sans-serif", fontSize: '10px', fontWeight: 600,
-      color, letterSpacing: '0.3em', textTransform: 'uppercase',
-      marginBottom: '12px',
-    }}>{label}</div>
-  );
-}
-
-/* ─── About Panel ─── */
-function AboutPanel({ visible, onEnter }: { visible: boolean; onEnter: () => void }) {
-  return (
-    <GlassPanel visible={visible} side="right" stallSide="left" color="#6E6EFF" onEnter={onEnter}>
-      <SectionLabel label="About" />
-      <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '26px', fontWeight: 700, color: '#F0F0F5', lineHeight: 1.2, marginBottom: '16px' }}>
-        {ABOUT.headline.split('\n').map((l, i) => <span key={i}>{l}{i === 0 && <br />}</span>)}
-      </h2>
-      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '14px', color: '#8888AA', lineHeight: 1.8, marginBottom: '24px' }}>
-        {ABOUT.bio}
-      </p>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', paddingTop: '20px', borderTop: '1px solid #1E1E2E' }}>
-        {ABOUT.stats.map(s => (
-          <div key={s.label}>
-            <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '28px', fontWeight: 700, color: '#6E6EFF', lineHeight: 1, marginBottom: '4px' }}>{s.value}</div>
-            <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '11px', color: '#44445A', letterSpacing: '0.05em' }}>{s.label}</div>
-          </div>
-        ))}
-      </div>
-    </GlassPanel>
-  );
-}
-
-/* ─── Skills Panel ─── */
-function SkillsPanel({ visible, onEnter }: { visible: boolean; onEnter: () => void }) {
-  return (
-    <GlassPanel visible={visible} side="left" stallSide="right" color="#00FF88" onEnter={onEnter}>
-      <SectionLabel label="Expertise" />
-      <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '26px', fontWeight: 700, color: '#F0F0F5', lineHeight: 1.2, marginBottom: '20px' }}>
-        {SKILLS.headline.split('\n').map((l, i) => <span key={i}>{l}{i === 0 && <br />}</span>)}
-      </h2>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-        {SKILLS.categories.map(cat => (
-          <div key={cat.name}>
-            <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '9px', fontWeight: 600, color: '#44445A', letterSpacing: '0.2em', marginBottom: '12px', textTransform: 'uppercase' }}>{cat.name}</div>
-            {cat.items.map(item => (
-              <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                <div style={{ width: '4px', height: '4px', background: cat.color, flexShrink: 0 }} />
-                <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '13px', color: '#8888AA' }}>{item}</span>
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
-    </GlassPanel>
-  );
-}
-
-/* ─── Work Panel ─── */
-function WorkPanel({ visible, onEnter }: { visible: boolean; onEnter: () => void }) {
-  const navigate = useNavigate();
-  return (
-    <GlassPanel visible={visible} side="right" stallSide="left" color="#00D4FF" onEnter={onEnter}>
-      <SectionLabel label="Selected Work" />
-      <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '26px', fontWeight: 700, color: '#F0F0F5', lineHeight: 1.2, marginBottom: '20px' }}>
-        {WORK.headline.split('\n').map((l, i) => <span key={i}>{l}{i === 0 && <br />}</span>)}
-      </h2>
-      {WORK.projects.map((p, i) => (
-        <div
-          key={p.id}
-          onClick={() => navigate(`/work/${p.slug}`)}
-          style={{ paddingTop: i === 0 ? '0' : '16px', paddingBottom: '16px', borderBottom: '1px solid #1E1E2E', cursor: 'pointer' }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div>
-              <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '10px', color: '#44445A', letterSpacing: '0.2em', marginBottom: '4px' }}>{p.id}</div>
-              <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '15px', fontWeight: 700, color: '#F0F0F5', marginBottom: '4px', letterSpacing: '0.05em' }}>{p.name}</div>
-              <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '12px', color: '#8888AA', marginBottom: '6px', lineHeight: 1.5 }}>{p.desc}</div>
-              {p.stack.length > 0 && (
-                <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '10px', color: '#44445A', letterSpacing: '0.05em' }}>{p.stack.join(' · ')}</div>
-              )}
-            </div>
-            <div style={{ color: '#00D4FF', fontSize: '16px', marginLeft: '12px', flexShrink: 0 }}>→</div>
-          </div>
-        </div>
-      ))}
-    </GlassPanel>
   );
 }
 
