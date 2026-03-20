@@ -31,44 +31,72 @@ function createProceduralTexture(
 
 function useProceduralTextures() {
   return useMemo(() => {
-    // High-res brick for near buildings
+    // Cyberpunk geometric panel facade
     const brickMap = createProceduralTexture(512, 512, (ctx, w, h) => {
-      ctx.fillStyle = '#2A2E28';
+      // Dark base with slight green tint
+      ctx.fillStyle = '#0A1208';
       ctx.fillRect(0, 0, w, h);
-      const brickW = 52, brickH = 22, mortarW = 3;
-      for (let row = 0; row < 24; row++) {
-        const offsetX = row % 2 === 0 ? 0 : brickW / 2;
-        for (let col = -1; col < 12; col++) {
-          const x = col * (brickW + mortarW) + offsetX;
-          const y = row * (brickH + mortarW);
-          const v = 35 + Math.floor(Math.random() * 25);
-          ctx.fillStyle = `rgb(${v + 15}, ${v + 18}, ${v})`;
-          ctx.fillRect(x + 1, y + 1, brickW - 1, brickH - 1);
-          // Add subtle variation within each brick
-          for (let s = 0; s < 3; s++) {
-            const sv = v + Math.floor(Math.random() * 10) - 5;
-            ctx.fillStyle = `rgba(${sv + 15}, ${sv + 18}, ${sv}, 0.3)`;
-            ctx.fillRect(x + 1 + Math.random() * (brickW - 4), y + 1 + Math.random() * (brickH - 4), 4 + Math.random() * 8, 2 + Math.random() * 4);
+
+      // Large panel grid (6 cols × 8 rows)
+      const cols = 6, rows = 8;
+      const gap = 5;
+      const panelW = (w - gap * (cols + 1)) / cols;
+      const panelH = (h - gap * (rows + 1)) / rows;
+
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const px = gap + c * (panelW + gap);
+          const py = gap + r * (panelH + gap);
+
+          // Panel base — subtle brightness variation per panel
+          const brightness = 14 + Math.floor(Math.random() * 10);
+          ctx.fillStyle = `rgb(${brightness}, ${brightness + 6}, ${brightness})`;
+          ctx.fillRect(px, py, panelW, panelH);
+
+          // Top-edge highlight (simulates ambient occlusion + rim light)
+          const highlightGrad = ctx.createLinearGradient(px, py, px, py + panelH * 0.3);
+          highlightGrad.addColorStop(0, 'rgba(0,255,136,0.06)');
+          highlightGrad.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx.fillStyle = highlightGrad;
+          ctx.fillRect(px, py, panelW, panelH * 0.3);
+
+          // Occasional accent panel (neon-tinted)
+          if (Math.random() < 0.08) {
+            ctx.fillStyle = 'rgba(0,255,136,0.04)';
+            ctx.fillRect(px, py, panelW, panelH);
+            // Accent border
+            ctx.strokeStyle = 'rgba(0,255,136,0.25)';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(px + 1, py + 1, panelW - 2, panelH - 2);
+          }
+
+          // Horizontal seam inside panel (decorative)
+          if (panelH > 40 && Math.random() < 0.4) {
+            const seamY = py + panelH * (0.4 + Math.random() * 0.2);
+            ctx.fillStyle = 'rgba(0,255,136,0.06)';
+            ctx.fillRect(px + 4, seamY, panelW - 8, 1);
           }
         }
       }
-      ctx.strokeStyle = '#2E3228';
-      ctx.lineWidth = mortarW;
-      for (let row = 0; row <= 24; row++) {
-        const y = row * (brickH + mortarW);
-        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+
+      // Grid lines in neon green (the gaps between panels)
+      ctx.fillStyle = 'rgba(0,255,136,0.18)';
+      for (let c = 0; c <= cols; c++) {
+        const x = gap * 0.5 + c * (panelW + gap) - gap * 0.5;
+        ctx.fillRect(x, 0, gap, h);
       }
-      // Add stains and weathering
-      for (let i = 0; i < 15; i++) {
-        const gx = Math.random() * w, gy = Math.random() * h;
-        const grad = ctx.createRadialGradient(gx, gy, 0, gx, gy, 20 + Math.random() * 30);
-        grad.addColorStop(0, 'rgba(20, 20, 15, 0.15)');
-        grad.addColorStop(1, 'rgba(20, 20, 15, 0)');
-        ctx.fillStyle = grad;
-        ctx.fillRect(gx - 40, gy - 40, 80, 80);
+      for (let r = 0; r <= rows; r++) {
+        const y = gap * 0.5 + r * (panelH + gap) - gap * 0.5;
+        ctx.fillRect(0, y, w, gap);
+      }
+
+      // Scan-line overlay for CRT/cyberpunk feel
+      ctx.fillStyle = 'rgba(0,0,0,0.12)';
+      for (let y = 0; y < h; y += 4) {
+        ctx.fillRect(0, y, w, 1);
       }
     });
-    brickMap.repeat.set(3, 6);
+    brickMap.repeat.set(2, 4);
 
     const roadMap = createProceduralTexture(512, 512, (ctx, w, h) => {
       ctx.fillStyle = '#2E2E2E';
@@ -188,7 +216,7 @@ function Building({ data, brickMap }: { data: BuildingData; brickMap: THREE.Text
       <group ref={groupRef} position={pos}>
         <mesh frustumCulled>
           <boxGeometry args={[w, h, d]} />
-          <meshStandardMaterial map={brickMap} roughness={0.85} metalness={0} color="#DDDDDD" emissive="#AAFF88" emissiveIntensity={litRatio * 0.15} />
+          <meshStandardMaterial map={brickMap} roughness={0.75} metalness={0.1} color="#CCDDCC" emissive="#00FF88" emissiveIntensity={litRatio * 0.2} />
         </mesh>
         {/* Road-facing trim */}
         {trims.length > 0 && (
@@ -208,7 +236,7 @@ function Building({ data, brickMap }: { data: BuildingData; brickMap: THREE.Text
       <group ref={groupRef} position={pos}>
         <mesh frustumCulled>
           <boxGeometry args={[w, h, d]} />
-          <meshStandardMaterial map={brickMap} roughness={0.85} metalness={0} color="#DDDDDD" emissive="#222218" emissiveIntensity={0.3} />
+          <meshStandardMaterial map={brickMap} roughness={0.75} metalness={0.1} color="#CCDDCC" emissive="#001A00" emissiveIntensity={0.4} />
         </mesh>
         <mesh position={[0, h / 2 + 0.15, 0]}>
           <boxGeometry args={[w + 0.2, 0.3, d + 0.2]} />
@@ -254,7 +282,7 @@ function Building({ data, brickMap }: { data: BuildingData; brickMap: THREE.Text
     <group ref={groupRef} position={pos}>
       <mesh frustumCulled>
         <boxGeometry args={[w, h, d]} />
-        <meshStandardMaterial map={brickMap} roughness={0.85} metalness={0} color="#DDDDDD" emissive="#222218" emissiveIntensity={0.3} />
+        <meshStandardMaterial map={brickMap} roughness={0.75} metalness={0.1} color="#CCDDCC" emissive="#001A00" emissiveIntensity={0.4} />
       </mesh>
       <mesh position={[0, h / 2 + 0.15, 0]}>
         <boxGeometry args={[w + 0.2, 0.3, d + 0.2]} />
@@ -1845,7 +1873,7 @@ function CityEnvironment({ onStallClick }: { onStallClick: (id: string) => void 
       lamps.push({ pos: [s * 5.5, 0, z], side: s });
       s *= -1;
     }
-    return lamps.slice(0, 8);
+    return lamps;
   }, []);
 
   const neonAccents = useMemo(() => {
@@ -1879,11 +1907,11 @@ function CityEnvironment({ onStallClick }: { onStallClick: (id: string) => void 
 
       {/* Drones */}
       <SocialDrone center={[0, 8, -40]} color={MATRIX_GREEN} orbitRadiusX={5} orbitRadiusZ={8} speed={0.18}
-        platform="GitHub" label="SOURCE CODE" link="https://github.com/YOUR_USERNAME" IconComponent={GithubSVG} />
+        platform="GitHub" label="SOURCE CODE" link="https://github.com/VittoriaLanzo" IconComponent={GithubSVG} />
       <SocialDrone center={[0, 8, -70]} color="#FF2D78" orbitRadiusX={4} orbitRadiusZ={7} speed={0.22}
-        platform="Instagram" label="FOLLOW" link="https://instagram.com/YOUR_USERNAME" IconComponent={InstagramSVG} />
+        platform="Instagram" label="FOLLOW" link="https://instagram.com/VittoriaLanzo" IconComponent={InstagramSVG} />
       <SocialDrone center={[0, 8, -100]} color={NEON_CYAN} orbitRadiusX={5} orbitRadiusZ={8} speed={0.15}
-        platform="Email" label="TRANSMIT" link="mailto:your@email.com" IconComponent={EmailSVG} />
+        platform="Email" label="TRANSMIT" link={(() => { const u='lanzo'+'.vittoria'; const d='gmail'+'.com'; return 'mailto:'+u+'@'+d; })()} IconComponent={EmailSVG} />
 
       <EndOfStreetBuilding brickMap={brickMap} />
 

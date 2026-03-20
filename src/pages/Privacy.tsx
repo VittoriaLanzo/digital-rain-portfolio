@@ -1,6 +1,21 @@
 import { useNavigate } from 'react-router-dom';
 
-const LAST_UPDATED = 'March 18, 2026';
+const LAST_UPDATED = 'March 20, 2026';
+
+// Bot-safe email: assembled at interaction time, never a complete string in source
+function ContactLink({ label }: { label?: string }) {
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const u = 'lanzo' + '.' + 'vittoria';
+    const d = 'gmail' + '.' + 'com';
+    window.location.href = 'mailto:' + u + '@' + d;
+  };
+  return (
+    <a href="#" onClick={handleClick} style={{ color: '#6E6EFF', textDecoration: 'none' }}>
+      {label ?? 'contact me by email'}
+    </a>
+  );
+}
 
 export default function Privacy() {
   const navigate = useNavigate();
@@ -86,7 +101,7 @@ export default function Privacy() {
           <p style={body}>
             The data controller responsible for processing your personal data is:<br />
             <strong style={{ color: '#F0F0F5' }}>Vittoria Lanzo</strong><br />
-            Email: <a href="mailto:privacy@vittorialanzo.com" style={{ color: '#6E6EFF', textDecoration: 'none' }}>privacy@vittorialanzo.com</a>
+            Email: <ContactLink label="lanzo [dot] vittoria [at] gmail [dot] com" />
           </p>
           <p style={body}>
             You may contact me at any time regarding questions about this policy or your data rights.
@@ -178,8 +193,7 @@ export default function Privacy() {
             <li><strong style={{ color: '#B0B0CC' }}>Right to withdraw consent (Art. 7(3)):</strong> Withdraw consent at any time, without affecting the lawfulness of prior processing.</li>
           </ul>
           <p style={body}>
-            To exercise any of these rights, contact me at{' '}
-            <a href="mailto:privacy@vittorialanzo.com" style={{ color: '#6E6EFF', textDecoration: 'none' }}>privacy@vittorialanzo.com</a>.
+            To exercise any of these rights, <ContactLink label="contact me by email" />.
             I will respond within <strong style={{ color: '#F0F0F5' }}>30 days</strong> as required by Art. 12(3) GDPR.
           </p>
 
@@ -223,7 +237,7 @@ export default function Privacy() {
           <p style={body}>
             For any privacy-related inquiries or data subject requests, contact:<br />
             <strong style={{ color: '#F0F0F5' }}>Vittoria Lanzo</strong><br />
-            Email: <a href="mailto:privacy@vittorialanzo.com" style={{ color: '#6E6EFF', textDecoration: 'none' }}>privacy@vittorialanzo.com</a>
+            Email: <ContactLink label="lanzo [dot] vittoria [at] gmail [dot] com" />
           </p>
 
           <div style={{ height: '1px', background: '#1E1E2E', margin: '32px 0 20px' }} />
