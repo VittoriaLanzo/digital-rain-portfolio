@@ -1291,7 +1291,7 @@ function NavigationStalls({ onStallClick }: { onStallClick: (id: string) => void
   return (
     <>
       {stalls.map((stall) => (
-        <group key={stall.id} position={[stall.side * 9.5, 0, stall.z]}>
+        <group key={stall.id} position={[stall.side * 7, 0, stall.z]}>
 
           {/* ── Base plinth ── */}
           <mesh position={[0, 0.075 * S, 0]}>
