@@ -144,7 +144,7 @@ This work demonstrates both a technique improvement for diffusion models and a p
 
 ## For Designers
 
-The camera starts at the mouth of the street and flies forward continuously as you scroll. Depth is physical: buildings recede into exponential fog, overhead cables droop between facades, rain falls in front of nearer objects and behind farther ones. Steam rises from manholes. Puddles sit flat on the pavement at y = 0.01. Three DJI-style drone models orbit at different points along the route — each one a social link, each with a holographic label panel that floats upright regardless of camera angle.
+The camera starts at the mouth of the street and flies forward continuously as you scroll. Depth is physical: buildings recede into exponential fog, overhead cables droop between facades, rain falls in front of nearer objects and behind farther ones. Steam rises from pipe vents at the sidewalk curb. Puddles sit flat on the pavement at y = 0.01. Three DJI-style drone models orbit at different points along the route — each one a social link, each with a holographic label panel that floats upright regardless of camera angle.
 
 Section navigation uses five illuminated panel structures spaced along the sidewalks. Each one is a physical object: a metallic plinth, a tall dark screen body with a glass face, side pillars, a top cap glowing at 6× emissive intensity, and a color-coded torus-ring arrow bobbing above it on a stem. They are not buttons that look like panels; they are panels. At scroll milestones, frosted glass cards slide in from left or right — section teasers that layer over the 3D view and let you enter a full page without leaving the environment.
 
