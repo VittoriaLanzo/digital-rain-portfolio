@@ -80,7 +80,7 @@ export default function Index() {
         <HeroDistrict />
       </div>
 
-      {/* ─── Glass Panels ─── */}
+      {/* ─── Glass Panels (bottom-anchored, don't cover 3D city center) ─── */}
       <AboutPanel visible={sp >= 0.15 && sp < 0.34} />
       <SkillsPanel visible={sp >= 0.35 && sp < 0.51} />
       <WorkPanel visible={sp >= 0.52 && sp < 0.69} />
@@ -103,6 +103,16 @@ export default function Index() {
         }}>© 2026 VITTORIA LANZO</p>
       </div>
 
+      {/* ─── Scroll UX Indicators ─── */}
+      {/* Entry invite: shown at very start before hero fades */}
+      <EntryScrollInvite visible={sp < 0.08} />
+
+      {/* Section advance hints — tell user what's coming next */}
+      <SectionAdvanceHint visible={sp >= 0.08 && sp < 0.14} label="About" color="#6E6EFF" />
+      <SectionAdvanceHint visible={sp >= 0.30 && sp < 0.35} label="Expertise" color="#00FF88" />
+      <SectionAdvanceHint visible={sp >= 0.47 && sp < 0.52} label="Work" color="#00D4FF" />
+      <SectionAdvanceHint visible={sp >= 0.65 && sp < 0.70} label="Lab" color="#FF2D78" />
+
       <ScrollHint visible={sp > 0.75 && sp < 0.92} />
       <BillboardFormOverlay visible={sp > 0.92} />
       <StallMenuOverlay activeStall={activeStall} onClose={() => setActiveStall(null)} />
@@ -124,30 +134,31 @@ function GlassPanel({ visible, side, children }: GlassPanelProps) {
   return (
     <div style={{
       position: 'fixed',
-      top: '50%',
-      left: side === 'left' ? '32px' : 'auto',
-      right: side === 'right' ? '32px' : 'auto',
+      // Anchor to bottom so 3D city center remains unobstructed
+      bottom: '24px',
+      left: side === 'left' ? '24px' : 'auto',
+      right: side === 'right' ? '24px' : 'auto',
       transform: visible
-        ? 'translateY(-50%) translateX(0)'
-        : `translateY(-50%) translateX(${side === 'left' ? '-120%' : '120%'})`,
+        ? 'translateY(0) translateX(0)'
+        : `translateY(0) translateX(${side === 'left' ? '-120%' : '120%'})`,
       opacity: visible ? 1 : 0,
       transition: 'transform 600ms cubic-bezier(0.16, 1, 0.3, 1), opacity 400ms ease',
       pointerEvents: visible ? 'auto' : 'none',
       zIndex: 50,
-      width: '360px',
-      maxWidth: '42vw',
-      maxHeight: '80vh',
+      width: '340px',
+      maxWidth: '38vw',
+      maxHeight: '52vh',
       overflowY: 'auto',
-      background: 'rgba(5, 5, 18, 0.72)',
+      background: 'rgba(5, 5, 18, 0.82)',
       backdropFilter: 'blur(20px)',
       WebkitBackdropFilter: 'blur(20px)',
-      border: '1px solid rgba(110, 110, 255, 0.15)',
+      border: '1px solid rgba(110, 110, 255, 0.18)',
       borderRadius: '8px',
-      boxShadow: '0 0 0 1px rgba(255,255,255,0.03), 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)',
-      backgroundImage: 'linear-gradient(rgba(5,5,18,0.72), rgba(5,5,18,0.72)), repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.015) 2px, rgba(0,0,0,0.015) 4px)',
+      boxShadow: '0 0 0 1px rgba(255,255,255,0.03), 0 -4px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)',
+      backgroundImage: 'linear-gradient(rgba(5,5,18,0.82), rgba(5,5,18,0.82)), repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.015) 2px, rgba(0,0,0,0.015) 4px)',
     }}>
       <div style={{ height: '1px', background: 'linear-gradient(90deg, transparent, #6E6EFF55, transparent)' }} />
-      <div style={{ padding: '28px' }}>{children}</div>
+      <div style={{ padding: '20px 24px' }}>{children}</div>
     </div>
   );
 }
@@ -314,6 +325,74 @@ function ScrollHint({ visible }: { visible: boolean }) {
     }}>
       <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '10px', color: '#6E6EFF', letterSpacing: '0.3em', textTransform: 'uppercase' }}>Keep scrolling</div>
       <div style={{ width: '1px', height: '32px', background: 'linear-gradient(to bottom, #6E6EFF, transparent)', animation: 'pulse 1.5s ease infinite' }} />
+    </div>
+  );
+}
+
+/* ─── Entry Scroll Invite (shown at page start) ─── */
+function EntryScrollInvite({ visible }: { visible: boolean }) {
+  return (
+    <div style={{
+      position: 'fixed', bottom: '40px', left: '50%',
+      transform: visible ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(16px)',
+      opacity: visible ? 1 : 0,
+      transition: 'opacity 600ms ease, transform 600ms ease',
+      pointerEvents: 'none',
+      display: 'flex', flexDirection: 'column',
+      alignItems: 'center', gap: '10px', zIndex: 90,
+    }}>
+      <div style={{
+        fontFamily: "'Syne', sans-serif", fontSize: '10px',
+        color: '#6E6EFF', letterSpacing: '0.35em', textTransform: 'uppercase',
+      }}>Scroll to explore</div>
+      {/* Animated chevrons */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+        {[0, 1, 2].map(i => (
+          <div key={i} style={{
+            width: '10px', height: '10px',
+            borderRight: '1.5px solid #6E6EFF',
+            borderBottom: '1.5px solid #6E6EFF',
+            transform: 'rotate(45deg)',
+            opacity: 0,
+            animation: `chevronFade 1.4s ease-in-out ${i * 0.22}s infinite`,
+          }} />
+        ))}
+      </div>
+      <style>{`
+        @keyframes chevronFade {
+          0%, 100% { opacity: 0; transform: rotate(45deg) translateY(-3px); }
+          50% { opacity: 0.9; transform: rotate(45deg) translateY(2px); }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+/* ─── Section Advance Hint (tells user what's next) ─── */
+function SectionAdvanceHint({ visible, label, color }: { visible: boolean; label: string; color: string }) {
+  return (
+    <div style={{
+      position: 'fixed', bottom: '24px', left: '50%',
+      transform: visible ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(12px)',
+      opacity: visible ? 1 : 0,
+      transition: 'opacity 400ms ease, transform 400ms ease',
+      pointerEvents: 'none',
+      display: 'flex', flexDirection: 'column',
+      alignItems: 'center', gap: '6px', zIndex: 88,
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ width: '20px', height: '1px', background: color, opacity: 0.5 }} />
+        <div style={{
+          fontFamily: "'Syne', sans-serif", fontSize: '9px',
+          color, letterSpacing: '0.3em', textTransform: 'uppercase', opacity: 0.8,
+        }}>scroll down · {label}</div>
+        <div style={{ width: '20px', height: '1px', background: color, opacity: 0.5 }} />
+      </div>
+      <div style={{
+        width: '1px', height: '22px',
+        background: `linear-gradient(to bottom, ${color}, transparent)`,
+        animation: 'pulse 1.5s ease infinite',
+      }} />
     </div>
   );
 }
