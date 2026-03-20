@@ -1,6 +1,6 @@
 import { useRef, useMemo, useEffect, useState, useCallback, Suspense } from 'react';
 import { Canvas, useFrame, useThree, ThreeEvent } from '@react-three/fiber';
-import { Stars, Html } from '@react-three/drei';
+import { Stars, Text } from '@react-three/drei';
 import * as THREE from 'three';
 
 
@@ -1538,18 +1538,18 @@ function StreetProps({ isMobile }: { isMobile: boolean }) {
             <meshStandardMaterial color="#000" emissive={i === 0 ? '#6E6EFF' : '#003300'} emissiveIntensity={i === 0 ? 4.0 : 3.0} />
           </mesh>
           {i === 0 && (
-            /* No distanceFactor — fixed screen-size label always legible */
-            <Html position={[mh[0], 0.22, mh[2]]} center style={{ pointerEvents: 'none' }}>
-              <div style={{
-                fontFamily: "'Syne', sans-serif",
-                fontSize: '11px', fontWeight: 600,
-                color: '#6E6EFF', letterSpacing: '0.25em',
-                textTransform: 'uppercase', whiteSpace: 'nowrap',
-                textShadow: '0 0 8px #6E6EFF',
-                background: 'rgba(5,5,18,0.7)',
-                padding: '2px 6px', borderRadius: '2px',
-              }}>PRIVACY</div>
-            </Html>
+            <Text
+              position={[mh[0], 0.025, mh[2]]}
+              rotation={[-Math.PI / 2, 0, 0]}
+              fontSize={0.1}
+              letterSpacing={0.15}
+              color="#6E6EFF"
+              anchorX="center"
+              anchorY="middle"
+            >
+              PRIVACY
+              <meshBasicMaterial color="#6E6EFF" toneMapped={false} />
+            </Text>
           )}
         </group>
       ))}
