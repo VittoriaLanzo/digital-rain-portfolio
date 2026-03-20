@@ -1,9 +1,11 @@
+import { useNavigate } from 'react-router-dom';
 import SectionShell from './SectionShell';
 import { WORK } from '../../content/sections';
 
 const COLOR = '#00D4FF';
 
 export default function Work() {
+  const navigate = useNavigate();
   return (
     <SectionShell num="03" label="WORK" color={COLOR} nextPath="/lab" nextLabel="LAB">
 
@@ -25,11 +27,15 @@ export default function Work() {
         {WORK.projects.map(p => (
           <div
             key={p.id}
+            onClick={() => navigate(`/work/${p.slug}`)}
             style={{
               paddingTop: '28px',
               paddingBottom: '28px',
               borderTop: '1px solid #1E1E2E',
+              cursor: 'pointer',
             }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderTopColor = `${COLOR}44`; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderTopColor = '#1E1E2E'; }}
           >
             <div style={{
               display: 'flex',
@@ -96,26 +102,14 @@ export default function Work() {
 
               </div>
 
-              {/* External link arrow */}
-              {p.link && (
-                <a
-                  href={p.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    color: COLOR,
-                    fontSize: '20px',
-                    textDecoration: 'none',
-                    flexShrink: 0,
-                    marginTop: '28px',
-                    transition: 'opacity 200ms',
-                  }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '0.6'; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1'; }}
-                >
-                  ↗
-                </a>
-              )}
+              {/* Detail page arrow */}
+              <div style={{
+                color: COLOR, fontSize: '20px',
+                flexShrink: 0, marginTop: '28px',
+                transition: 'transform 200ms',
+              }}>
+                →
+              </div>
             </div>
           </div>
         ))}
