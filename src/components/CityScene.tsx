@@ -1952,7 +1952,7 @@ function CityEnvironment({ onStallClick }: { onStallClick: (id: string) => void 
 /* ─── Neon Shop Signs ─── */
 function NeonShopSigns({ buildings }: { buildings: BuildingData[] }) {
   const signs = useMemo(() => {
-    const SIGN_WORDS = ['RAMEN', 'DATA', 'SYNTH', 'NEON', 'CYBER', 'VOID', 'PULSE', 'HACK'];
+    const SIGN_WORDS = ['RAMEN', 'DATA', 'NEON', 'CYBER', 'VOID', 'PULSE', 'HACK'];
     const SIGN_COLORS = ['#FF00FF', '#00FFFF', '#FF6600', '#FF2D78', '#00FF88'];
     const result: { pos: [number, number, number]; rotY: number; text: string; color: string }[] = [];
     // Pick 3 buildings spread across the street
