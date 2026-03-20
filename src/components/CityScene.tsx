@@ -604,7 +604,7 @@ const EmailSVG = () => (
   </svg>
 );
 
-/* ─── Social Drone (Hexagonal Surveillance) ─── */
+/* ─── Social Drone (DJI-style Quadcopter) ─── */
 interface SocialDroneProps {
   center: [number, number, number];
   color: string;
@@ -619,6 +619,7 @@ interface SocialDroneProps {
 
 function SocialDrone({ center, color, orbitRadiusX, orbitRadiusZ, speed, platform, label, link, IconComponent }: SocialDroneProps) {
   const groupRef = useRef<THREE.Group>(null);
+  const bodyRef = useRef<THREE.Group>(null);
   const rotorRefs = useRef<THREE.Mesh[]>([]);
   const navLeftRef = useRef<THREE.Mesh>(null);
   const navRightRef = useRef<THREE.Mesh>(null);
@@ -626,8 +627,9 @@ function SocialDrone({ center, color, orbitRadiusX, orbitRadiusZ, speed, platfor
   const hoveredRef = useRef(false);
   const offsetRef = useRef(Math.random() * Math.PI * 2);
 
-  const hexAngles = useMemo(() => [0, 60, 120, 180, 240, 300].map(d => (d * Math.PI) / 180), []);
-  const armLength = 1.2;
+  // 4 arm angles for X-frame quadcopter (45°, 135°, 225°, 315°)
+  const armAngles = useMemo(() => [45, 135, 225, 315].map(d => (d * Math.PI) / 180), []);
+  const armLength = 1.05;
 
   const handlePointerOver = useCallback((e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation(); setHovered(true); hoveredRef.current = true; document.body.style.cursor = 'pointer';
@@ -648,10 +650,15 @@ function SocialDrone({ center, color, orbitRadiusX, orbitRadiusZ, speed, platfor
     groupRef.current.position.x = center[0] + Math.sin(elapsed) * orbitRadiusX;
     groupRef.current.position.z = center[2] + Math.cos(elapsed * 0.6) * orbitRadiusZ;
     groupRef.current.position.y = Math.max(5, 8 + Math.sin(t * 1.3) * 1.5);
-    groupRef.current.rotation.y += 0.005;
     groupRef.current.position.x = THREE.MathUtils.clamp(groupRef.current.position.x, -5, 5);
 
-    const rotorSpeed = hoveredRef.current ? 0.4 : 0.25;
+    // Gentle body tilt (not full rotation so hologram stays readable)
+    if (bodyRef.current) {
+      bodyRef.current.rotation.z = Math.sin(elapsed) * 0.08;
+      bodyRef.current.rotation.x = Math.cos(elapsed * 0.6) * 0.06;
+    }
+
+    const rotorSpeed = hoveredRef.current ? 0.55 : 0.38;
     rotorRefs.current.forEach(r => { if (r) r.rotation.y += rotorSpeed; });
 
     // Nav light pulse
@@ -662,7 +669,7 @@ function SocialDrone({ center, color, orbitRadiusX, orbitRadiusZ, speed, platfor
 
   return (
     <group ref={groupRef} position={[center[0], 8, center[2]]}>
-      {/* INVISIBLE CLICK HITBOX — ALL events here */}
+      {/* INVISIBLE CLICK HITBOX */}
       <mesh
         onPointerOver={handlePointerOver}
         onPointerOut={handlePointerOut}
@@ -673,132 +680,201 @@ function SocialDrone({ center, color, orbitRadiusX, orbitRadiusZ, speed, platfor
         <meshBasicMaterial transparent opacity={0.0001} depthWrite={false} depthTest={false} side={THREE.FrontSide} />
       </mesh>
 
-      {/* Core hull */}
-      <mesh>
-        <cylinderGeometry args={[0.7, 0.9, 0.18, 6]} />
-        <meshStandardMaterial color="#0A0A14" metalness={0.95} roughness={0.05} emissive={color} emissiveIntensity={0.3} />
-      </mesh>
+      {/* ── DJI-style body group (tilts with motion) ── */}
+      <group ref={bodyRef}>
 
-      {/* Underbelly sensor pod */}
-      <mesh position={[0, -0.15, 0]}>
-        <cylinderGeometry args={[0.25, 0.25, 0.1, 16]} />
-        <meshStandardMaterial color="#000010" metalness={1.0} roughness={0.0} emissive={color} emissiveIntensity={2.0} />
-      </mesh>
+        {/* Main body — elongated boxy fuselage */}
+        <mesh position={[0, 0, 0]}>
+          <boxGeometry args={[0.72, 0.22, 1.0]} />
+          <meshStandardMaterial color="#0C0C18" metalness={0.92} roughness={0.08} emissive={color} emissiveIntensity={0.12} />
+        </mesh>
 
-      {/* Top ridge */}
-      <mesh position={[0, 0.12, 0]}>
-        <cylinderGeometry args={[0.3, 0.3, 0.06, 6]} />
-        <meshStandardMaterial color="#111122" metalness={0.9} roughness={0.2} emissive={color} emissiveIntensity={1.0} />
-      </mesh>
+        {/* Top shell (slightly narrower, rounded feel) */}
+        <mesh position={[0, 0.12, -0.05]}>
+          <boxGeometry args={[0.6, 0.08, 0.82]} />
+          <meshStandardMaterial color="#141426" metalness={0.88} roughness={0.12} />
+        </mesh>
 
-      {/* 6 Arms + rotors */}
-      {hexAngles.map((angle, i) => {
-        const tipX = Math.cos(angle) * armLength;
-        const tipZ = Math.sin(angle) * armLength;
-        const midX = Math.cos(angle) * armLength * 0.5;
-        const midZ = Math.sin(angle) * armLength * 0.5;
-        return (
-          <group key={`arm${i}`}>
-            <mesh position={[midX, 0, midZ]} rotation={[0, -angle + Math.PI / 2, Math.PI / 2]}>
-              <cylinderGeometry args={[0.035, 0.035, armLength, 6]} />
-              <meshStandardMaterial color="#080814" metalness={0.9} roughness={0.15} />
-            </mesh>
-            <mesh position={[tipX, 0, tipZ]}>
-              <sphereGeometry args={[0.06, 8, 8]} />
-              <meshStandardMaterial color="#000" emissive={color} emissiveIntensity={3.0} />
-            </mesh>
-            <group position={[tipX, 0.05, tipZ]}>
-              <mesh ref={(el) => { if (el) rotorRefs.current[i] = el; }}>
-                <cylinderGeometry args={[0.28, 0.28, 0.025, 12]} />
-                <meshStandardMaterial color="#000" emissive={color} emissiveIntensity={1.5} />
+        {/* Front sensor bar (DJI obstacle avoidance sensors) */}
+        <mesh position={[0, 0, 0.52]}>
+          <boxGeometry args={[0.58, 0.14, 0.04]} />
+          <meshStandardMaterial color="#050510" metalness={1} roughness={0} emissive={color} emissiveIntensity={0.6} />
+        </mesh>
+
+        {/* Status LED strip on top */}
+        <mesh position={[0, 0.165, 0]}>
+          <boxGeometry args={[0.08, 0.02, 0.5]} />
+          <meshStandardMaterial color="#000" emissive={color} emissiveIntensity={4} />
+        </mesh>
+
+        {/* 4 Arms (X-frame diagonal) */}
+        {armAngles.map((angle, i) => {
+          const tipX = Math.cos(angle) * armLength;
+          const tipZ = Math.sin(angle) * armLength;
+          const midX = Math.cos(angle) * armLength * 0.5;
+          const midZ = Math.sin(angle) * armLength * 0.5;
+          const armRotY = -angle + Math.PI / 2;
+          return (
+            <group key={`arm${i}`}>
+              {/* Arm tube */}
+              <mesh position={[midX, 0, midZ]} rotation={[0, armRotY, Math.PI / 2]}>
+                <cylinderGeometry args={[0.028, 0.04, armLength, 6]} />
+                <meshStandardMaterial color="#080814" metalness={0.95} roughness={0.1} />
               </mesh>
-              <mesh>
-                <torusGeometry args={[0.28, 0.025, 6, 16]} />
-                <meshStandardMaterial color="#000" emissive={color} emissiveIntensity={4.0} />
+              {/* Motor housing */}
+              <mesh position={[tipX, 0.04, tipZ]}>
+                <cylinderGeometry args={[0.1, 0.08, 0.1, 12]} />
+                <meshStandardMaterial color="#0A0A18" metalness={0.9} roughness={0.1} emissive={color} emissiveIntensity={0.5} />
               </mesh>
-              <mesh position={[0, 0.02, 0]}>
-                <cylinderGeometry args={[0.28, 0.28, 0.005, 12]} />
-                <meshBasicMaterial color={color} transparent opacity={0.2} depthWrite={false} />
+              {/* Spinning prop disc (2-blade visible blur) */}
+              <group position={[tipX, 0.1, tipZ]}>
+                <mesh ref={(el) => { if (el) rotorRefs.current[i] = el; }}>
+                  {/* Two blades as a thin crossed box */}
+                  <boxGeometry args={[0.55, 0.015, 0.06]} />
+                  <meshStandardMaterial color="#111122" metalness={0.7} roughness={0.3} />
+                </mesh>
+                {/* Second blade perpendicular */}
+                <mesh rotation={[0, Math.PI / 2, 0]} ref={(el) => { if (el) rotorRefs.current[i + 4] = el; }}>
+                  <boxGeometry args={[0.55, 0.015, 0.06]} />
+                  <meshStandardMaterial color="#111122" metalness={0.7} roughness={0.3} />
+                </mesh>
+                {/* Motion blur disc */}
+                <mesh position={[0, 0, 0]}>
+                  <cylinderGeometry args={[0.28, 0.28, 0.004, 16]} />
+                  <meshBasicMaterial color={color} transparent opacity={0.15} depthWrite={false} />
+                </mesh>
+              </group>
+              {/* Landing leg (extends below motor) */}
+              <mesh position={[tipX * 0.82, -0.32, tipZ * 0.82]} rotation={[Math.cos(angle) * 0.3, 0, -Math.sin(angle) * 0.3]}>
+                <cylinderGeometry args={[0.018, 0.014, 0.55, 6]} />
+                <meshStandardMaterial color="#0A0A18" metalness={0.9} roughness={0.2} />
               </mesh>
             </group>
-          </group>
-        );
-      })}
+          );
+        })}
 
-      {/* Navigation lights */}
-      <mesh ref={navLeftRef} position={[-0.6, 0, 0]}>
-        <sphereGeometry args={[0.04, 8, 8]} />
-        <meshStandardMaterial color="#000" emissive="#FF2222" emissiveIntensity={6} />
-      </mesh>
-      <mesh ref={navRightRef} position={[0.6, 0, 0]}>
-        <sphereGeometry args={[0.04, 8, 8]} />
-        <meshStandardMaterial color="#000" emissive="#22FF22" emissiveIntensity={6} />
-      </mesh>
+        {/* Landing gear foot cross-bar (front) */}
+        <mesh position={[0, -0.55, 0.6]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.016, 0.016, 0.55, 6]} />
+          <meshStandardMaterial color="#0A0A18" metalness={0.9} roughness={0.2} />
+        </mesh>
+        {/* Landing gear foot cross-bar (rear) */}
+        <mesh position={[0, -0.55, -0.6]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.016, 0.016, 0.55, 6]} />
+          <meshStandardMaterial color="#0A0A18" metalness={0.9} roughness={0.2} />
+        </mesh>
 
-      {/* Downlight beam cone */}
-      <mesh position={[0, -1.5, 0]} rotation={[Math.PI, 0, 0]}>
-        <coneGeometry args={[0.8, 3, 8, 1, true]} />
-        <meshBasicMaterial color={color} transparent opacity={0.04} side={THREE.DoubleSide} depthWrite={false} />
-      </mesh>
+        {/* Camera gimbal mount (below front of body) */}
+        <group position={[0, -0.2, 0.36]}>
+          {/* Gimbal arm */}
+          <mesh position={[0, -0.06, 0]}>
+            <boxGeometry args={[0.14, 0.12, 0.08]} />
+            <meshStandardMaterial color="#080810" metalness={0.95} roughness={0.05} />
+          </mesh>
+          {/* Camera ball */}
+          <mesh position={[0, -0.18, 0]}>
+            <sphereGeometry args={[0.1, 12, 12]} />
+            <meshStandardMaterial color="#050510" metalness={1.0} roughness={0.0} emissive={color} emissiveIntensity={1.2} />
+          </mesh>
+          {/* Lens */}
+          <mesh position={[0, -0.18, 0.1]}>
+            <cylinderGeometry args={[0.05, 0.06, 0.04, 12]} rotation={[Math.PI / 2, 0, 0]} />
+            <meshStandardMaterial color="#000" metalness={0.5} roughness={0} emissive="#4466FF" emissiveIntensity={1.5} />
+          </mesh>
+        </group>
+
+        {/* Navigation lights */}
+        <mesh ref={navLeftRef} position={[-0.38, 0, 0.42]}>
+          <sphereGeometry args={[0.03, 8, 8]} />
+          <meshStandardMaterial color="#000" emissive="#FF2222" emissiveIntensity={8} />
+        </mesh>
+        <mesh ref={navRightRef} position={[0.38, 0, 0.42]}>
+          <sphereGeometry args={[0.03, 8, 8]} />
+          <meshStandardMaterial color="#000" emissive="#22FF44" emissiveIntensity={8} />
+        </mesh>
+
+        {/* Rear status light */}
+        <mesh position={[0, 0, -0.52]}>
+          <sphereGeometry args={[0.025, 8, 8]} />
+          <meshStandardMaterial color="#000" emissive={color} emissiveIntensity={6} />
+        </mesh>
+
+        {/* Downlight beam cone */}
+        <mesh position={[0, -1.5, 0]} rotation={[Math.PI, 0, 0]}>
+          <coneGeometry args={[0.7, 2.8, 8, 1, true]} />
+          <meshBasicMaterial color={color} transparent opacity={0.05} side={THREE.DoubleSide} depthWrite={false} />
+        </mesh>
+
+      </group>{/* end body group */}
 
       {/* Drone point light */}
       <pointLight position={[0, -0.5, 0]} color={color} intensity={hovered ? 8 : 4} distance={6} decay={2} />
 
-      {/* Hover panel */}
-      {hovered && (
-        <Html
-          position={[0, 3, 0]}
-          transform
-          occlude={false}
-          distanceFactor={8}
-          style={{ pointerEvents: 'none' }}
-        >
+      {/* Hologram panel — always visible, screen-space aligned (no transform to prevent inversion) */}
+      <Html
+        position={[0, 3.2, 0]}
+        occlude={false}
+        distanceFactor={10}
+        center
+        style={{ pointerEvents: 'none' }}
+      >
+        <div style={{
+          width: '260px', padding: '18px 20px',
+          background: hovered ? 'rgba(8,8,20,0.97)' : 'rgba(8,8,20,0.75)',
+          border: `1px solid ${hovered ? color : color + '88'}`,
+          boxShadow: hovered ? `0 0 28px ${color}44` : `0 0 12px ${color}22`,
+          fontFamily: "'Inter', sans-serif",
+          color: '#F0F0F5',
+          textAlign: 'center',
+          borderRadius: '4px',
+          transition: 'all 300ms ease',
+          opacity: hovered ? 1 : 0.78,
+        }}>
+          {/* Hologram scan line */}
           <div style={{
-            width: '320px', padding: '24px',
-            background: 'rgba(8,8,20,0.96)',
-            border: `1px solid ${color}`,
-            boxShadow: `0 0 24px ${color}33`,
-            fontFamily: "'Inter', sans-serif",
-            color: '#F0F0F5',
-            textAlign: 'center',
-            borderRadius: '4px',
-          }}>
-            <div style={{ color, marginBottom: '12px' }}>
-              <IconComponent />
-            </div>
-            <div style={{
-              fontFamily: "'Syne', sans-serif", fontSize: '16px',
-              fontWeight: 700, color: '#F0F0F5',
-              letterSpacing: '0.15em', marginBottom: '10px',
-            }}>{platform.toUpperCase()}</div>
-            <div style={{
-              width: '60%', height: '1px',
-              background: 'rgba(255,255,255,0.08)',
-              margin: '0 auto 10px',
-            }} />
-            <div style={{
-              fontSize: '12px', color: '#8888AA',
-              letterSpacing: '0.1em', marginBottom: '16px',
-            }}>{label}</div>
+            position: 'absolute', top: 0, left: 0, right: 0,
+            height: '2px',
+            background: `linear-gradient(90deg, transparent, ${color}, transparent)`,
+            borderRadius: '4px 4px 0 0',
+          }} />
+          <div style={{ color: hovered ? color : color + 'CC', marginBottom: '10px', transform: 'scale(0.75)', transformOrigin: 'center' }}>
+            <IconComponent />
+          </div>
+          <div style={{
+            fontFamily: "'Syne', sans-serif", fontSize: '13px',
+            fontWeight: 700, color: '#F0F0F5',
+            letterSpacing: '0.18em', marginBottom: '6px',
+          }}>{platform.toUpperCase()}</div>
+          <div style={{
+            width: '50%', height: '1px',
+            background: `rgba(255,255,255,0.08)`,
+            margin: '0 auto 8px',
+          }} />
+          <div style={{
+            fontSize: '10px', color: '#8888AA',
+            letterSpacing: '0.1em', marginBottom: hovered ? '14px' : '0',
+          }}>{label}</div>
+          {hovered && (
             <button
-              onClick={(e) => { e.stopPropagation(); window.open(link, '_blank', 'noopener,noreferrer'); }}
+              onPointerDown={(e) => { e.stopPropagation(); window.open(link, '_blank', 'noopener,noreferrer'); }}
               onMouseEnter={(e) => { (e.target as HTMLElement).style.background = color; (e.target as HTMLElement).style.color = '#050510'; }}
               onMouseLeave={(e) => { (e.target as HTMLElement).style.background = 'transparent'; (e.target as HTMLElement).style.color = color; }}
               style={{
                 pointerEvents: 'auto',
                 fontFamily: "'Syne', sans-serif",
-                fontSize: '12px', letterSpacing: '0.15em',
+                fontSize: '11px', letterSpacing: '0.15em',
                 border: `1px solid ${color}`,
                 color,
                 background: 'transparent',
-                padding: '8px 20px',
+                padding: '7px 18px',
                 cursor: 'pointer',
                 transition: 'all 200ms',
+                marginTop: '4px',
               }}
             >OPEN →</button>
-          </div>
-        </Html>
-      )}
+          )}
+        </div>
+      </Html>
     </group>
   );
 }
@@ -843,22 +919,45 @@ function EndOfStreetBuilding({ brickMap }: { brickMap: THREE.Texture }) {
           <meshStandardMaterial color="#2A2A3A" metalness={0.9} roughness={0.2} />
         </mesh>
       ))}
-      {/* Mural panel */}
-      <mesh position={[0, 12, 4.05]}>
-        <planeGeometry args={[10, 14]} />
-        <meshStandardMaterial color="#0A0A14" emissive={ACCENT_VIOLET} emissiveIntensity={0.08} roughness={0.2} metalness={0.4} />
+      {/* Mural panel — enlarged */}
+      <mesh position={[0, 15, 4.05]}>
+        <planeGeometry args={[22, 26]} />
+        <meshStandardMaterial color="#0A0A14" emissive={ACCENT_VIOLET} emissiveIntensity={0.1} roughness={0.2} metalness={0.4} />
       </mesh>
-      {/* Mural frame */}
-      <mesh position={[0, 19.06, 4.08]}><boxGeometry args={[10.3, 0.12, 0.06]} /><meshStandardMaterial color="#000" emissive={ACCENT_VIOLET} emissiveIntensity={3} /></mesh>
-      <mesh position={[0, 4.94, 4.08]}><boxGeometry args={[10.3, 0.12, 0.06]} /><meshStandardMaterial color="#000" emissive={ACCENT_VIOLET} emissiveIntensity={3} /></mesh>
-      <mesh position={[-5.06, 12, 4.08]}><boxGeometry args={[0.12, 14.3, 0.06]} /><meshStandardMaterial color="#000" emissive={ACCENT_VIOLET} emissiveIntensity={3} /></mesh>
-      <mesh position={[5.06, 12, 4.08]}><boxGeometry args={[0.12, 14.3, 0.06]} /><meshStandardMaterial color="#000" emissive={ACCENT_VIOLET} emissiveIntensity={3} /></mesh>
-      {/* Mural Html - identity only, no form */}
-      <Html position={[0, 12, 4.1]} transform occlude={false} distanceFactor={20} style={{ pointerEvents: 'none' }}>
-        <div style={{ width: '200px', height: '280px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-          <div style={{ width: '120px', height: '120px', borderRadius: '50%', border: '2px solid #6E6EFF', background: '#0F0F1A', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Syne, sans-serif', fontSize: '32px', fontWeight: 700, color: '#6E6EFF' }}>VL</div>
-          <div style={{ fontFamily: 'Syne, sans-serif', fontSize: '14px', fontWeight: 700, color: '#F0F0F5', letterSpacing: '0.15em', textAlign: 'center', marginTop: '4px' }}>VITTORIA LANZO</div>
-          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '10px', color: '#8888AA', letterSpacing: '0.1em', textAlign: 'center' }}>AI PROMPT ENGINEER</div>
+      {/* Inner glow layer */}
+      <mesh position={[0, 15, 4.06]}>
+        <planeGeometry args={[20, 24]} />
+        <meshBasicMaterial color={ACCENT_VIOLET} transparent opacity={0.03} depthWrite={false} />
+      </mesh>
+      {/* Mural frame — top/bottom/left/right */}
+      <mesh position={[0, 28.06, 4.08]}><boxGeometry args={[22.3, 0.14, 0.07]} /><meshStandardMaterial color="#000" emissive={ACCENT_VIOLET} emissiveIntensity={4} /></mesh>
+      <mesh position={[0, 1.94, 4.08]}><boxGeometry args={[22.3, 0.14, 0.07]} /><meshStandardMaterial color="#000" emissive={ACCENT_VIOLET} emissiveIntensity={4} /></mesh>
+      <mesh position={[-11.06, 15, 4.08]}><boxGeometry args={[0.14, 26.3, 0.07]} /><meshStandardMaterial color="#000" emissive={ACCENT_VIOLET} emissiveIntensity={4} /></mesh>
+      <mesh position={[11.06, 15, 4.08]}><boxGeometry args={[0.14, 26.3, 0.07]} /><meshStandardMaterial color="#000" emissive={ACCENT_VIOLET} emissiveIntensity={4} /></mesh>
+      {/* Corner accent dots */}
+      {[[-11, 28], [11, 28], [-11, 2], [11, 2]].map(([cx, cy], i) => (
+        <mesh key={`corner${i}`} position={[cx, cy, 4.1]}>
+          <sphereGeometry args={[0.12, 8, 8]} />
+          <meshStandardMaterial color="#000" emissive={ACCENT_VIOLET} emissiveIntensity={6} />
+        </mesh>
+      ))}
+      {/* Mural Html - identity panel — bigger */}
+      <Html position={[0, 15, 4.12]} transform occlude={false} distanceFactor={28} style={{ pointerEvents: 'none' }}>
+        <div style={{ width: '360px', height: '520px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '14px' }}>
+          {/* Outer ring */}
+          <div style={{ position: 'relative', width: '180px', height: '180px' }}>
+            <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '1px solid #6E6EFF33', animation: 'none' }} />
+            <div style={{ position: 'absolute', inset: '8px', borderRadius: '50%', border: '2px solid #6E6EFF', background: 'radial-gradient(circle, #0F0F1A 60%, #0A0A2A)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Syne, sans-serif', fontSize: '52px', fontWeight: 700, color: '#6E6EFF' }}>VL</div>
+          </div>
+          <div style={{ fontFamily: 'Syne, sans-serif', fontSize: '20px', fontWeight: 700, color: '#F0F0F5', letterSpacing: '0.2em', textAlign: 'center' }}>VITTORIA LANZO</div>
+          <div style={{ width: '120px', height: '1px', background: 'linear-gradient(90deg, transparent, #6E6EFF, transparent)' }} />
+          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '13px', color: '#8888AA', letterSpacing: '0.15em', textAlign: 'center' }}>AI PROMPT ENGINEER</div>
+          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '11px', color: '#44445A', letterSpacing: '0.1em', textAlign: 'center' }}>AGENTIC SYSTEMS DESIGNER</div>
+          <div style={{ display: 'flex', gap: '16px', marginTop: '6px' }}>
+            {['◈', '⬡', '◎'].map((icon, i) => (
+              <div key={i} style={{ fontFamily: 'Syne, sans-serif', fontSize: '16px', color: '#6E6EFF', opacity: 0.6 }}>{icon}</div>
+            ))}
+          </div>
         </div>
       </Html>
       {/* Neon transition strip */}
