@@ -110,13 +110,35 @@ export const WORK = {
       name: 'Sestara',
       year: '2025',
       desc: "Most learners quit because they don't know what to study next. Sestara fixes that — AI generates your personal roadmap, tracks every topic, and quizzes you until you actually know it.",
-      longDesc: `Sestara is a personalized AI learning companion built on the premise that the hardest part of learning isn't the content — it's knowing what to study next.
+      longDesc: `Sestara is named after the sextant — the instrument sailors used to navigate open ocean with nothing but stars and math. Learning should feel the same way: oriented, purposeful, and never lost.
 
-The system generates a custom curriculum from a single topic or goal, breaking it into progressive milestones. A prompt-engineered tutor then tracks comprehension in real time, adapting difficulty and spacing repetition based on quiz results.
+The spark was Chiara. She studied nine hours a day for six months preparing for Italy's single-shot university medicine entrance exam. Colour-coded binders. Three prep books. Zero social life. She failed by four points — not because she wasn't smart, but because she studied everything when she needed to study the right things. No system told her where she stood. No feedback loop. No way to distinguish real mastery from false familiarity.
 
-The core insight: LLMs are excellent curriculum designers when given structured constraints. By combining goal decomposition prompts, spaced repetition logic, and active recall generation into a tightly orchestrated pipeline, Sestara creates a feedback loop that keeps learners progressing — and actually remembering what they study.`,
-      stack: ['Python', 'LLM Orchestration', 'Prompt Engineering', 'Frontend'],
-      link: null as string | null,
+Sestara is the system she never had: an AI-powered learning platform that turns any exam goal into a structured, trackable, and emotionally supported study journey.
+
+## Design & Product
+
+The entire product vision, brand identity, and UX system were built from scratch. Sestara needed to feel like a private tutor — warm, precise, and honest about where you stand — not another productivity app.
+
+The brand is built around the sextant metaphor: orientation, measurement, navigation. Every surface reflects this. The dashboard is a command center, not a to-do list: a live roadmap with completion percentages, weekly study time, and streaks. Recharts turns raw numbers into feedback that actually motivates. The colour system and typography were chosen to feel premium without being cold.
+
+The UX architecture separates the product into four self-contained modules — curriculum engine, quiz system, flashcards, and StudyBuddy — each accessible without friction, each feeding back into the same progress layer. The dual quiz architecture was a deliberate product decision: a native quiz engine for instant, no-setup quizzing with explanations, and a Custom Quiz Studio that generates structured JSON schema prompts compatible with any external model. AI-agnostic by design, so no student is ever locked out by a paywall or a provider.
+
+Framer Motion handles all transitions. shadcn/ui (Radix primitives) + Tailwind CSS provides the component foundation. Tiptap gives StudyBuddy and Simple Explanations a rich text surface that feels like a real document, not a chat window. KaTeX renders every mathematical formula — critical for medicine, physics, and engineering tracks. Fabric.js powers a drawing canvas so students can sketch diagrams and work through problems visually, not just textually.
+
+## StudyBuddy — The AI Companion
+
+StudyBuddy is Sestara's on-site AI assistant, and its system prompt is the core of the AI layer. The prompt is engineered so the assistant knows the student's full curriculum, their current completion percentage, which sections are behind schedule, and what the exam actually tests — not just the topic in isolation.
+
+The design intent: a student who is stuck, frustrated, or three weeks behind schedule shouldn't get a generic chatbot. They should get someone who checks in, recalibrates, and encourages. The prompt distinguishes between explaining a concept, simplifying it for a first-pass, and actively quizzing the student on it — each mode triggered differently, each with a distinct tone. It checks in. It encourages. It recalibrates when you're spiralling.
+
+The Custom Quiz Studio extends this further: Sestara generates a ready-to-use prompt with a structured JSON schema that any LLM can parse — ChatGPT, Claude, Gemini, Llama, Perplexity. Paste the JSON back. The quiz feeds into the progress system. The library grows with every session.
+
+## Stack
+
+React 18 + TypeScript · Vite · Tailwind CSS + shadcn/ui · Framer Motion · TanStack React Query · React Router · Tiptap · KaTeX · Fabric.js · Recharts · Zod · React Hook Form · Lovable Cloud (auth, database, edge functions, storage) · GDPR-compliant (Article 28 DPAs, TLS in transit, no data resale)`,
+      stack: ['React', 'TypeScript', 'Tailwind CSS', 'Framer Motion', 'Prompt Engineering', 'shadcn/ui', 'KaTeX', 'Lovable'],
+      link: 'https://sestara.lovable.app' as string | null,
     },
     {
       id: '02',
