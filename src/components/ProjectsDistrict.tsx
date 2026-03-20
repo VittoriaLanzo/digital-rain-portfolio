@@ -11,7 +11,7 @@ const projects: Project[] = [
   {
     number: '01',
     name: 'Sestara',
-    description: "Most learners quit because they don't know what to study next. Sestara fixes that — AI generates your personal roadmap, tracks every topic, and quizzes you until you actually know it."
+    description: "Most learners quit because they don't know what to study next. Sestara fixes that — AI generates your personal roadmap, tracks every topic, and quizzes you until you actually know it.",
     stack: 'Python · LLM Orchestration · Prompt engineering · frontend',
   },
   {
