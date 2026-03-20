@@ -136,16 +136,28 @@ This work demonstrates both a technique improvement for diffusion models and a p
     },
     {
       id: '03',
-      slug: 'neuralscript',
-      name: 'NEURALSCRIPT',
-      year: '2025',
-      desc: 'Low-latency inference interface with custom instruction design.',
-      longDesc: `NEURALSCRIPT is a lightweight inference interface designed for environments where latency is the primary constraint — embedded systems, edge devices, and real-time applications where standard Python LLM wrappers are too heavy.
+      slug: 'neonwalk',
+      name: 'NEONWALK',
+      year: '2026',
+      desc: 'This site. A rain-soaked cyberpunk street you scroll through — every building, particle, and light procedurally generated in WebGL, with the environment itself as the navigation.',
+      longDesc: `You are inside it right now. NEONWALK is a personal portfolio built as a fully navigable 3D environment: a rain-slicked cyberpunk street seen from street level, advanced by scrolling. A single normalized float — scroll progress, 0 to 1 — drives the camera position, every panel's visibility, every UI fade. Nothing is on a timeline.
 
-Built in C with a thin Python binding layer, it exposes a minimal API for structured instruction passing and response parsing. The instruction design layer allows complex behavior to be encoded in compact, cacheable prompt templates rather than verbose natural language, reducing both token count and generation time.
+## For Designers
 
-The agentic pipeline design enables chained inference calls with structured output validation between steps, ensuring that each stage of a multi-step task produces well-formed data before proceeding.`,
-      stack: ['C', 'Python', 'Agentic Pipeline Design', 'LLM Inference'],
+The camera starts at the mouth of the street and flies forward continuously as you scroll. Depth is physical: buildings recede into exponential fog, overhead cables droop between facades, rain falls in front of nearer objects and behind farther ones. Steam rises from pipe vents at the sidewalk curb. Puddles sit flat on the pavement at y = 0.01. Three DJI-style drone models orbit at different points along the route — each one a social link, each with a holographic label panel that floats upright regardless of camera angle.
+
+Section navigation uses five illuminated panel structures spaced along the sidewalks. Each one is a physical object: a metallic plinth, a tall dark screen body with a glass face, side pillars, a top cap glowing at 6× emissive intensity, and a color-coded torus-ring arrow bobbing above it on a stem. They are not buttons that look like panels; they are panels. At scroll milestones, frosted glass cards slide in from left or right — section teasers that layer over the 3D view and let you enter a full page without leaving the environment.
+
+The palette is load-bearing. Four accent colors are assigned to the four sections and are used nowhere else: violet (#6E6EFF) for About and Contact, matrix green (#00FF88) for Skills, cyan (#00D4FF) for Work, magenta (#FF2D78) for Lab. Every panel structure, drone, and glass card inherits its section color. Two fonts, Syne for structure and labels, Inter for body text, are used without exception.
+
+## For Engineers
+
+Stack: React 18.3 + TypeScript (strict), Vite 5, React Three Fiber 8, Drei 9, React Router v6, shadcn/ui (contact form only). The WebGL canvas is a full-viewport R3F Canvas: antialias disabled for performance, ACESFilmic tonemapping at 1.2 exposure, DPR locked at 1, far plane at 400 units, performance={{ min: 0.5 }} so R3F can regress the render factor to 50% under sustained load. Everything outside the canvas is standard React DOM.
+
+Every scene element is procedurally generated inside useMemo hooks on first render — no pre-baked meshes, no imported 3D files. Building geometry is assembled from stacked box primitives (body, rooftop trim, windows, doors, balconies, fire escapes, water towers, antennas) with façade textures drawn at runtime via the Canvas 2D API and uploaded as THREE.CanvasTexture. Rain is a Points mesh with a custom Float32Array position buffer, updated per frame in useFrame — 300 particles on desktop, 40 on mobile. Steam is an instancedMesh of 50 spheres per vent across 4 vents, matrix-repositioned each frame. The LOD system has three levels per building gated at LOD_NEAR = 40 and LOD_MID = 80 camera-distance units; far buildings drop to a single box with a baked emissive window strip.
+
+Navigation panel click handling sits on the R3F group wrapping each panel structure. Child mesh pointer events bubble to the group's onClick — no invisible hitbox mesh, no raycasting workaround. The Html component from Drei renders the drone hologram panels and the mural identity card as DOM nodes transformed into 3D space; all Html overlays carry pointerEvents: none so they pass clicks through to the canvas. On mobile, FloatingDust (200 instanced spheres) is disabled, background silhouette buildings are removed, Stars drop from 1200 to 400, and vendor stalls are omitted. The contact email address is never present as a complete string anywhere in source or compiled output — it is assembled from split literals at the moment of user interaction.`,
+      stack: ['React', 'TypeScript', 'Three.js', 'React Three Fiber', 'Vite', 'Procedural Generation'],
       link: null as string | null,
     },
   ] as Project[],
