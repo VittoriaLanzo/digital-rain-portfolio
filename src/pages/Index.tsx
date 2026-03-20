@@ -80,10 +80,16 @@ export default function Index() {
         <HeroDistrict />
       </div>
 
-      {/* ─── Glass Panels (bottom-anchored, don't cover 3D city center) ─── */}
-      <AboutPanel visible={sp >= 0.15 && sp < 0.34} />
-      <SkillsPanel visible={sp >= 0.35 && sp < 0.51} />
-      <WorkPanel visible={sp >= 0.52 && sp < 0.69} />
+      {/* ─── Glass Panels ───────────────────────────────────────────────────
+           Timing derived from camera path z(t)=30-231.25t vs stall positions.
+           Windows use stall midpoints as boundaries → only ONE panel visible.
+           About   stall z=-20  →  panel: 0.09–0.29
+           Skills  stall z=-55  →  panel: 0.29–0.44
+           Work    stall z=-90  →  panel: 0.44–0.59
+      ─────────────────────────────────────────────────────────────────── */}
+      <AboutPanel visible={sp >= 0.09 && sp < 0.29} />
+      <SkillsPanel visible={sp >= 0.29 && sp < 0.44} />
+      <WorkPanel visible={sp >= 0.44 && sp < 0.59} />
 
       {/* ─── Nav Dots ─── */}
       <NavDots sp={sp} onNavigate={scrollToProgress} />
@@ -104,16 +110,17 @@ export default function Index() {
       </div>
 
       {/* ─── Scroll UX Indicators ─── */}
-      {/* Entry invite: shown at very start before hero fades */}
-      <EntryScrollInvite visible={sp < 0.08} />
+      {/* Entry invite at page load */}
+      <EntryScrollInvite visible={sp < 0.07} />
 
-      {/* Section advance hints — tell user what's coming next */}
-      <SectionAdvanceHint visible={sp >= 0.08 && sp < 0.14} label="About" color="#6E6EFF" />
-      <SectionAdvanceHint visible={sp >= 0.30 && sp < 0.35} label="Expertise" color="#00FF88" />
-      <SectionAdvanceHint visible={sp >= 0.47 && sp < 0.52} label="Work" color="#00D4FF" />
-      <SectionAdvanceHint visible={sp >= 0.65 && sp < 0.70} label="Lab" color="#FF2D78" />
+      {/* "Coming up" hint just before About panel appears */}
+      <SectionAdvanceHint visible={sp >= 0.07 && sp < 0.09} label="About" color="#6E6EFF" />
 
-      <ScrollHint visible={sp > 0.75 && sp < 0.92} />
+      {/* After all content panels are done, guide toward Lab & Contact stalls */}
+      <SectionAdvanceHint visible={sp >= 0.60 && sp < 0.68} label="Lab" color="#FF2D78" />
+      <SectionAdvanceHint visible={sp >= 0.75 && sp < 0.82} label="Contact" color="#6E6EFF" />
+
+      <ScrollHint visible={sp >= 0.82 && sp < 0.93} />
       <BillboardFormOverlay visible={sp > 0.92} />
       <StallMenuOverlay activeStall={activeStall} onClose={() => setActiveStall(null)} />
     </div>

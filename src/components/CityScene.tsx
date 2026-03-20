@@ -966,13 +966,111 @@ function EndOfStreetBuilding({ brickMap }: { brickMap: THREE.Texture }) {
           </div>
         </div>
       </Html>
-      {/* Neon transition strip */}
+      {/* Neon front strip */}
       <mesh position={[0, 30.4, 4.0]}>
         <boxGeometry args={[32, 0.4, 0.2]} />
         <meshStandardMaterial color="#000" emissive={MATRIX_GREEN} emissiveIntensity={5} />
       </mesh>
       <pointLight position={[0, 30.4, 4.0]} color={MATRIX_GREEN} intensity={4} distance={12} decay={2} />
-      {/* Spotlights on mural */}
+
+      {/* ══════════════════════════════
+          ROOFTOP — visible when camera rises above y=30
+          ══════════════════════════════ */}
+
+      {/* Rooftop deck surface */}
+      <mesh position={[0, 30.6, 0]}>
+        <boxGeometry args={[32, 0.18, 8]} />
+        <meshStandardMaterial color="#181822" metalness={0.6} roughness={0.5} />
+      </mesh>
+
+      {/* Rooftop perimeter parapet */}
+      {/* Front */}
+      <mesh position={[0, 31.3, 4.1]}>
+        <boxGeometry args={[32.2, 1.4, 0.22]} />
+        <meshStandardMaterial color="#1A1A28" metalness={0.5} roughness={0.6} />
+      </mesh>
+      {/* Back */}
+      <mesh position={[0, 31.3, -4.1]}>
+        <boxGeometry args={[32.2, 1.4, 0.22]} />
+        <meshStandardMaterial color="#1A1A28" metalness={0.5} roughness={0.6} />
+      </mesh>
+      {/* Left */}
+      <mesh position={[-16.1, 31.3, 0]}>
+        <boxGeometry args={[0.22, 1.4, 8.4]} />
+        <meshStandardMaterial color="#1A1A28" metalness={0.5} roughness={0.6} />
+      </mesh>
+      {/* Right */}
+      <mesh position={[16.1, 31.3, 0]}>
+        <boxGeometry args={[0.22, 1.4, 8.4]} />
+        <meshStandardMaterial color="#1A1A28" metalness={0.5} roughness={0.6} />
+      </mesh>
+
+      {/* Parapet neon edge strip */}
+      <mesh position={[0, 32.05, 4.2]}>
+        <boxGeometry args={[32.4, 0.06, 0.08]} />
+        <meshStandardMaterial color="#000" emissive={ACCENT_VIOLET} emissiveIntensity={5} />
+      </mesh>
+      <mesh position={[-16.2, 32.05, 0]}>
+        <boxGeometry args={[0.08, 0.06, 8.6]} />
+        <meshStandardMaterial color="#000" emissive={ACCENT_VIOLET} emissiveIntensity={5} />
+      </mesh>
+      <mesh position={[16.2, 32.05, 0]}>
+        <boxGeometry args={[0.08, 0.06, 8.6]} />
+        <meshStandardMaterial color="#000" emissive={ACCENT_VIOLET} emissiveIntensity={5} />
+      </mesh>
+
+      {/* Central rooftop VL logo — visible from above */}
+      <mesh position={[0, 30.72, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[10, 5]} />
+        <meshStandardMaterial color="#0A0A14" emissive={ACCENT_VIOLET} emissiveIntensity={0.6} />
+      </mesh>
+      {/* Html wrapped in rotated group so it lies flat on the roof facing upward */}
+      <group position={[0, 30.78, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <Html transform occlude={false} distanceFactor={30} style={{ pointerEvents: 'none' }}>
+          <div style={{ width: '200px', height: '100px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
+            <div style={{ fontFamily: 'Syne, sans-serif', fontSize: '32px', fontWeight: 700, color: '#6E6EFF', textShadow: '0 0 20px #6E6EFF' }}>VL</div>
+            <div style={{ width: '1px', height: '40px', background: '#6E6EFF44' }} />
+            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '9px', color: '#6E6EFF88', letterSpacing: '0.2em', textTransform: 'uppercase', lineHeight: 1.6 }}>VITTORIA<br/>LANZO</div>
+          </div>
+        </Html>
+      </group>
+
+      {/* Water tower cluster (left) */}
+      <group position={[-10, 30.7, -1.5]}>
+        {[[-0.5,0,-0.5],[0.5,0,-0.5],[-0.5,0,0.5],[0.5,0,0.5]].map(([lx,,lz], li) => (
+          <mesh key={`rtleg${li}`} position={[lx, 1.0, lz]}>
+            <boxGeometry args={[0.07, 2.0, 0.07]} />
+            <meshStandardMaterial color="#1A1810" metalness={0.3} roughness={0.9} />
+          </mesh>
+        ))}
+        <mesh position={[0, 2.8, 0]}><cylinderGeometry args={[0.65, 0.85, 2, 8]} /><meshStandardMaterial color="#1A1810" metalness={0.3} roughness={0.9} /></mesh>
+        <mesh position={[0, 4.0, 0]}><coneGeometry args={[0.75, 0.9, 8]} /><meshStandardMaterial color="#1A1810" metalness={0.3} roughness={0.9} /></mesh>
+      </group>
+
+      {/* HVAC units (right cluster) */}
+      {[[6, 30.8, 1], [9, 30.8, -1.5], [12, 30.8, 1.5]].map(([hx, hy, hz], hi) => (
+        <group key={`hvac${hi}`} position={[hx, hy, hz]}>
+          <mesh><boxGeometry args={[1.6, 0.9, 1.0]} /><meshStandardMaterial color="#181820" metalness={0.7} roughness={0.5} /></mesh>
+          <mesh position={[0, 0.52, 0]} rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[0.25, 0.04, 6, 12]} />
+            <meshStandardMaterial color="#000" emissive="#004400" emissiveIntensity={0.4} />
+          </mesh>
+        </group>
+      ))}
+
+      {/* Tall antenna array (centre-right) */}
+      <group position={[5, 30.7, -2]}>
+        <mesh><cylinderGeometry args={[0.04, 0.06, 5, 6]} /><meshStandardMaterial color="#111118" metalness={0.9} roughness={0.2} /></mesh>
+        <mesh position={[0, 2.6, 0]}><sphereGeometry args={[0.09, 8, 8]} /><meshStandardMaterial color="#000" emissive="#FF2222" emissiveIntensity={5} /></mesh>
+        <mesh position={[-0.6, 1.5, 0]}><boxGeometry args={[1.2, 0.04, 0.04]} /><meshStandardMaterial color="#111118" metalness={0.9} roughness={0.2} /></mesh>
+        <mesh position={[0, 2.2, 0]} rotation={[0, Math.PI / 3, 0]}><boxGeometry args={[0.8, 0.04, 0.04]} /><meshStandardMaterial color="#111118" metalness={0.9} roughness={0.2} /></mesh>
+      </group>
+
+      {/* Rooftop ambient light pointing down */}
+      <pointLight position={[0, 34, 0]} color={ACCENT_VIOLET} intensity={3} distance={20} decay={2} />
+      <pointLight position={[-10, 33, 0]} color={MATRIX_GREEN} intensity={1.5} distance={15} decay={2} />
+
+      {/* Spotlights on front mural */}
       <spotLight position={[-4, 22, 6]} color={ACCENT_VIOLET} intensity={6} angle={0.4} penumbra={0.7} target-position={[0, 12, 4]} />
       <spotLight position={[4, 22, 6]} color={ACCENT_VIOLET} intensity={6} angle={0.4} penumbra={0.7} />
     </group>
@@ -1440,8 +1538,17 @@ function StreetProps({ isMobile }: { isMobile: boolean }) {
             <meshStandardMaterial color="#000" emissive={i === 0 ? '#6E6EFF' : '#003300'} emissiveIntensity={i === 0 ? 4.0 : 3.0} />
           </mesh>
           {i === 0 && (
-            <Html position={[mh[0], 0.1, mh[2]]} center distanceFactor={15} style={{ pointerEvents: 'none' }}>
-              <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '8px', color: '#6E6EFF', letterSpacing: '0.2em', textTransform: 'uppercase', whiteSpace: 'nowrap', opacity: 0.7 }}>PRIVACY</div>
+            /* No distanceFactor — fixed screen-size label always legible */
+            <Html position={[mh[0], 0.22, mh[2]]} center style={{ pointerEvents: 'none' }}>
+              <div style={{
+                fontFamily: "'Syne', sans-serif",
+                fontSize: '11px', fontWeight: 600,
+                color: '#6E6EFF', letterSpacing: '0.25em',
+                textTransform: 'uppercase', whiteSpace: 'nowrap',
+                textShadow: '0 0 8px #6E6EFF',
+                background: 'rgba(5,5,18,0.7)',
+                padding: '2px 6px', borderRadius: '2px',
+              }}>PRIVACY</div>
             </Html>
           )}
         </group>
