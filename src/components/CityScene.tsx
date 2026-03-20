@@ -1305,7 +1305,13 @@ function NavigationStalls({ onStallClick }: { onStallClick: (id: string) => void
   return (
     <>
       {stalls.map((stall) => (
-        <group key={stall.id} position={[stall.side * 7, 0, stall.z]}>
+        <group
+          key={stall.id}
+          position={[stall.side * 7, 0, stall.z]}
+          onClick={(e) => { e.stopPropagation(); onStallClick(stall.id); }}
+          onPointerOver={(e) => { e.stopPropagation(); document.body.style.cursor = 'pointer'; }}
+          onPointerOut={(e) => { e.stopPropagation(); document.body.style.cursor = 'none'; }}
+        >
 
           {/* ── Base plinth ── */}
           <mesh position={[0, 0.075 * S, 0]}>
@@ -1400,17 +1406,6 @@ function NavigationStalls({ onStallClick }: { onStallClick: (id: string) => void
               }}>TAP TO OPEN →</div>
             </div>
           </Html>
-
-          {/* ── Click hitbox ── */}
-          <mesh
-            position={[0, 1.3 * S, 0]}
-            onClick={(e) => { e.stopPropagation(); onStallClick(stall.id); }}
-            onPointerOver={() => { document.body.style.cursor = 'pointer'; }}
-            onPointerOut={() => { document.body.style.cursor = 'none'; }}
-          >
-            <boxGeometry args={[2.6 * S, 3.2 * S, 0.9 * S]} />
-            <meshBasicMaterial transparent opacity={0.0001} depthWrite={false} />
-          </mesh>
 
           {/* ── Point lights ── */}
           <pointLight position={[0, 1.8 * S, 0.6]} color={stall.color} intensity={4} distance={10} decay={2} />
