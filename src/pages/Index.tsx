@@ -278,6 +278,7 @@ function SkillsPanel({ visible, onEnter }: { visible: boolean; onEnter: () => vo
 
 /* ─── Work Panel ─── */
 function WorkPanel({ visible, onEnter }: { visible: boolean; onEnter: () => void }) {
+  const navigate = useNavigate();
   return (
     <GlassPanel visible={visible} side="right" stallSide="left" color="#00D4FF" onEnter={onEnter}>
       <SectionLabel label="Selected Work" />
@@ -285,7 +286,11 @@ function WorkPanel({ visible, onEnter }: { visible: boolean; onEnter: () => void
         {WORK.headline.split('\n').map((l, i) => <span key={i}>{l}{i === 0 && <br />}</span>)}
       </h2>
       {WORK.projects.map((p, i) => (
-        <div key={p.id} style={{ paddingTop: i === 0 ? '0' : '16px', paddingBottom: '16px', borderBottom: '1px solid #1E1E2E' }}>
+        <div
+          key={p.id}
+          onClick={() => navigate(`/work/${p.slug}`)}
+          style={{ paddingTop: i === 0 ? '0' : '16px', paddingBottom: '16px', borderBottom: '1px solid #1E1E2E', cursor: 'pointer' }}
+        >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '10px', color: '#44445A', letterSpacing: '0.2em', marginBottom: '4px' }}>{p.id}</div>
@@ -437,6 +442,11 @@ function BillboardFormOverlay({ visible }: { visible: boolean }) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const u = 'lanzo' + '.' + 'vittoria';
+    const d = 'gmail' + '.' + 'com';
+    const subject = encodeURIComponent(`Portfolio contact from ${form.name}`);
+    const body = encodeURIComponent(`Name: ${form.name}\nEmail: ${form.email}\n\n${form.message}`);
+    window.location.href = `mailto:${u}@${d}?subject=${subject}&body=${body}`;
     setSent(true);
     setTimeout(() => { setSent(false); setForm({ name: '', email: '', message: '' }); }, 3000);
   };
