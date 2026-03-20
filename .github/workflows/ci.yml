@@ -76,7 +76,34 @@ jobs:
           retention-days: 3
 
   # ─────────────────────────────────────────────────────────────────────
-  # 4. SUMMARY  — single required status check to configure in branch rules
+  # 4. SMOKE TEST  — verify live site returns HTTP 200
+  #    Set LIVE_SITE_URL in repo/org secrets (Settings → Secrets → Actions)
+  # ─────────────────────────────────────────────────────────────────────
+  smoke-test:
+    name: Smoke test — live site HTTP 200
+    runs-on: ubuntu-latest
+    # Skip gracefully if no LIVE_SITE_URL secret is configured
+    if: vars.LIVE_SITE_URL != '' || secrets.LIVE_SITE_URL != ''
+    env:
+      LIVE_URL: ${{ secrets.LIVE_SITE_URL || vars.LIVE_SITE_URL }}
+    steps:
+      - name: Check live site returns HTTP 200
+        run: |
+          if [ -z "$LIVE_URL" ]; then
+            echo "LIVE_SITE_URL not configured — skipping smoke test."
+            exit 0
+          fi
+          echo "Smoke-testing: $LIVE_URL"
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "$LIVE_URL")
+          echo "HTTP status: $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "ERROR: expected 200, got $STATUS"
+            exit 1
+          fi
+          echo "Smoke test passed ✓"
+
+  # ─────────────────────────────────────────────────────────────────────
+  # 5. SUMMARY  — single required status check to configure in branch rules
   #    (require "CI / All checks passed" in the branch protection settings)
   # ─────────────────────────────────────────────────────────────────────
   all-checks-passed:

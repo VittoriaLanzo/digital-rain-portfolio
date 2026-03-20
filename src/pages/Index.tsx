@@ -495,12 +495,36 @@ function BillboardFormOverlay({ visible }: { visible: boolean }) {
       </form>
 
       <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', marginTop: '20px' }}>
-        {(['GitHub', 'LinkedIn', 'X'] as const).map(p => (
-          <a key={p} href="#" style={{ fontSize: '11px', color: '#44445A', letterSpacing: '0.15em', textDecoration: 'none' }}
-            onMouseEnter={e => { (e.target as HTMLElement).style.color = '#8888AA'; }}
-            onMouseLeave={e => { (e.target as HTMLElement).style.color = '#44445A'; }}
-          >{p}</a>
-        ))}
+        <a href="https://github.com/VittoriaLanzo" target="_blank" rel="noopener noreferrer"
+          style={{ fontSize: '11px', color: '#44445A', letterSpacing: '0.15em', textDecoration: 'none' }}
+          onMouseEnter={e => { (e.target as HTMLElement).style.color = '#8888AA'; }}
+          onMouseLeave={e => { (e.target as HTMLElement).style.color = '#44445A'; }}
+        >GitHub</a>
+        <a href="https://instagram.com/VittoriaLanzo" target="_blank" rel="noopener noreferrer"
+          style={{ fontSize: '11px', color: '#44445A', letterSpacing: '0.15em', textDecoration: 'none' }}
+          onMouseEnter={e => { (e.target as HTMLElement).style.color = '#8888AA'; }}
+          onMouseLeave={e => { (e.target as HTMLElement).style.color = '#44445A'; }}
+        >Instagram</a>
+        <span
+          title="LinkedIn — coming soon"
+          style={{ fontSize: '11px', color: '#2A2A3A', letterSpacing: '0.15em', cursor: 'default' }}
+        >LinkedIn</span>
+      </div>
+      <div style={{ textAlign: 'center', marginTop: '14px' }}>
+        <button
+          onClick={() => {
+            const u = 'lanzo' + '.' + 'vittoria';
+            const d = 'gmail' + '.' + 'com';
+            window.location.href = 'mailto:' + u + '@' + d;
+          }}
+          style={{
+            background: 'none', border: 'none', cursor: 'pointer',
+            fontSize: '11px', color: '#44445A', letterSpacing: '0.1em',
+            fontFamily: "'Inter', sans-serif",
+          }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#6E6EFF'; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#44445A'; }}
+        >✉ Email me directly</button>
       </div>
     </div>
   );
