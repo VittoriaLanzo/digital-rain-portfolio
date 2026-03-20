@@ -652,10 +652,16 @@ function SocialDrone({ center, color, orbitRadiusX, orbitRadiusZ, speed, platfor
     groupRef.current.position.y = Math.max(5, 8 + Math.sin(t * 1.3) * 1.5);
     groupRef.current.position.x = THREE.MathUtils.clamp(groupRef.current.position.x, -5, 5);
 
-    // Gentle body tilt (not full rotation so hologram stays readable)
+    // Body yaw tracks orbit direction; tilt follows lateral/forward motion
+    // Html panel is OUTSIDE bodyRef so it stays screen-space and never inverts
     if (bodyRef.current) {
-      bodyRef.current.rotation.z = Math.sin(elapsed) * 0.08;
-      bodyRef.current.rotation.x = Math.cos(elapsed * 0.6) * 0.06;
+      // Yaw: face direction of travel along elliptical orbit
+      const vx = Math.cos(elapsed) * orbitRadiusX * s;
+      const vz = -Math.sin(elapsed * 0.6) * orbitRadiusZ * s * 0.6;
+      bodyRef.current.rotation.y = Math.atan2(vx, vz);
+      // Roll/pitch with motion
+      bodyRef.current.rotation.z = Math.sin(elapsed) * 0.10;
+      bodyRef.current.rotation.x = Math.cos(elapsed * 0.6) * 0.07;
     }
 
     const rotorSpeed = hoveredRef.current ? 0.55 : 0.38;
@@ -1129,84 +1135,177 @@ function NeonHalo({ position, color, scale = 4 }: { position: [number, number, n
   );
 }
 
+/* ─── Floating Stall Arrow (bobs up/down above each stall) ─── */
+function StallArrow({ color }: { color: string }) {
+  const ref = useRef<THREE.Group>(null);
+  useFrame(({ clock }) => {
+    if (!ref.current) return;
+    ref.current.position.y = 5.8 + Math.sin(clock.getElapsedTime() * 2.2) * 0.22;
+  });
+  return (
+    <group ref={ref} position={[0, 5.8, 0]}>
+      {/* Outer ring */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[0.32, 0.028, 8, 20]} />
+        <meshStandardMaterial color="#000" emissive={color} emissiveIntensity={4} />
+      </mesh>
+      {/* Inner ring */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.28, 0]}>
+        <torusGeometry args={[0.22, 0.018, 8, 16]} />
+        <meshStandardMaterial color="#000" emissive={color} emissiveIntensity={3} />
+      </mesh>
+      {/* Downward pointing cone */}
+      <mesh position={[0, -0.55, 0]} rotation={[Math.PI, 0, 0]}>
+        <coneGeometry args={[0.14, 0.38, 8]} />
+        <meshStandardMaterial color="#000" emissive={color} emissiveIntensity={6} />
+      </mesh>
+      {/* Stem connecting to stall top */}
+      <mesh position={[0, -1.2, 0]}>
+        <cylinderGeometry args={[0.012, 0.012, 1.6, 6]} />
+        <meshStandardMaterial color="#000" emissive={color} emissiveIntensity={2} />
+      </mesh>
+      <pointLight color={color} intensity={2} distance={5} decay={2} />
+    </group>
+  );
+}
+
 /* ─── Navigation Stalls ─── */
+const STALL_DESCRIPTIONS: Record<string, string> = {
+  about:   'Who I am & what I build',
+  skills:  'Tech stack & core practice',
+  work:    'Featured AI projects',
+  lab:     'Experiments & concepts',
+  contact: 'Start a conversation',
+};
+
 function NavigationStalls({ onStallClick }: { onStallClick: (id: string) => void }) {
   const stalls = useMemo(() => [
-    { id: 'about', label: 'ABOUT', z: -20, side: -1, color: '#6E6EFF' },
-    { id: 'skills', label: 'EXPERTISE', z: -55, side: 1, color: '#00FF88' },
-    { id: 'work', label: 'WORK', z: -90, side: -1, color: '#00D4FF' },
-    { id: 'lab', label: 'LAB', z: -125, side: 1, color: '#FF2D78' },
-    { id: 'contact', label: 'CONTACT', z: -160, side: -1, color: '#6E6EFF' },
+    { id: 'about',   label: 'ABOUT',    z: -20,  side: -1, color: '#6E6EFF' },
+    { id: 'skills',  label: 'EXPERTISE',z: -55,  side:  1, color: '#00FF88' },
+    { id: 'work',    label: 'WORK',     z: -90,  side: -1, color: '#00D4FF' },
+    { id: 'lab',     label: 'LAB',      z: -125, side:  1, color: '#FF2D78' },
+    { id: 'contact', label: 'CONTACT',  z: -160, side: -1, color: '#6E6EFF' },
   ], []);
+
+  // S = scale factor: 1.75× the original stall dimensions
+  const S = 1.75;
 
   return (
     <>
       {stalls.map((stall) => (
         <group key={stall.id} position={[stall.side * 9.5, 0, stall.z]}>
-          {/* Base plinth */}
-          <mesh position={[0, 0.075, 0]}>
-            <boxGeometry args={[1.8, 0.15, 0.8]} />
+
+          {/* ── Base plinth ── */}
+          <mesh position={[0, 0.075 * S, 0]}>
+            <boxGeometry args={[1.8 * S, 0.15 * S, 0.8 * S]} />
             <meshStandardMaterial color="#1A1A28" metalness={0.8} roughness={0.3} />
           </mesh>
-          {/* Main screen */}
-          <mesh position={[0, 1.225, 0]}>
-            <boxGeometry args={[1.6, 2.0, 0.12]} />
-            <meshStandardMaterial color="#070712" emissive={stall.color} emissiveIntensity={0.15} metalness={0.9} roughness={0.05} />
+
+          {/* ── Step/accent strip at bottom ── */}
+          <mesh position={[0, 0.18 * S, 0]}>
+            <boxGeometry args={[1.9 * S, 0.04, 0.82 * S]} />
+            <meshStandardMaterial color="#000" emissive={stall.color} emissiveIntensity={2.5} />
           </mesh>
-          {/* Screen glass */}
-          <mesh position={[0, 1.225, 0.07]}>
-            <planeGeometry args={[1.5, 1.9]} />
-            <meshStandardMaterial color="#000000" emissive={stall.color} emissiveIntensity={0.08} transparent opacity={0.9} side={THREE.DoubleSide} />
+
+          {/* ── Main screen body ── */}
+          <mesh position={[0, 1.225 * S, 0]}>
+            <boxGeometry args={[1.6 * S, 2.0 * S, 0.14 * S]} />
+            <meshStandardMaterial color="#070712" emissive={stall.color} emissiveIntensity={0.18} metalness={0.9} roughness={0.05} />
           </mesh>
-          {/* Top cap */}
-          <mesh position={[0, 2.28, 0]}>
-            <boxGeometry args={[1.7, 0.08, 0.18]} />
-            <meshStandardMaterial color="#000" emissive={stall.color} emissiveIntensity={5.0} />
+
+          {/* ── Screen glass (road-facing) ── */}
+          <mesh position={[0, 1.225 * S, 0.08 * S]}>
+            <planeGeometry args={[1.42 * S, 1.82 * S]} />
+            <meshStandardMaterial color="#000010" emissive={stall.color} emissiveIntensity={0.12} transparent opacity={0.88} side={THREE.DoubleSide} />
           </mesh>
-          {/* Side pillars */}
-          <mesh position={[-0.84, 1.15, 0]}>
-            <boxGeometry args={[0.08, 2.2, 0.15]} />
-            <meshStandardMaterial color="#000" emissive={stall.color} emissiveIntensity={3.0} />
+
+          {/* ── Top cap (glowing) ── */}
+          <mesh position={[0, 2.28 * S, 0]}>
+            <boxGeometry args={[1.7 * S, 0.1 * S, 0.2 * S]} />
+            <meshStandardMaterial color="#000" emissive={stall.color} emissiveIntensity={6.0} />
           </mesh>
-          <mesh position={[0.84, 1.15, 0]}>
-            <boxGeometry args={[0.08, 2.2, 0.15]} />
-            <meshStandardMaterial color="#000" emissive={stall.color} emissiveIntensity={3.0} />
+
+          {/* ── Side pillars ── */}
+          <mesh position={[-0.84 * S, 1.15 * S, 0]}>
+            <boxGeometry args={[0.09 * S, 2.2 * S, 0.16 * S]} />
+            <meshStandardMaterial color="#000" emissive={stall.color} emissiveIntensity={3.5} />
           </mesh>
-          {/* Floor glow ring */}
+          <mesh position={[0.84 * S, 1.15 * S, 0]}>
+            <boxGeometry args={[0.09 * S, 2.2 * S, 0.16 * S]} />
+            <meshStandardMaterial color="#000" emissive={stall.color} emissiveIntensity={3.5} />
+          </mesh>
+
+          {/* ── Floor glow ring ── */}
           <mesh position={[0, 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-            <circleGeometry args={[1.0, 24]} />
-            <meshStandardMaterial color="#000" emissive={stall.color} emissiveIntensity={2.0} transparent opacity={0.6} side={THREE.DoubleSide} />
+            <circleGeometry args={[1.4 * S, 32]} />
+            <meshBasicMaterial color={stall.color} transparent opacity={0.08} depthWrite={false} />
           </mesh>
-          {/* Label */}
-          <Html distanceFactor={8} transform occlude={false} position={[0, 1.225, 0.1]} style={{ pointerEvents: 'none' }}>
+          <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[1.1 * S, 0.04, 8, 32]} />
+            <meshStandardMaterial color="#000" emissive={stall.color} emissiveIntensity={3} transparent opacity={0.8} />
+          </mesh>
+
+          {/* ── HTML label overlay ── */}
+          <Html
+            distanceFactor={10}
+            transform
+            occlude={false}
+            position={[0, 1.225 * S, 0.1 * S]}
+            style={{ pointerEvents: 'none' }}
+          >
             <div style={{
-              width: '140px', display: 'flex', flexDirection: 'column',
-              alignItems: 'center', gap: '6px', pointerEvents: 'none',
+              width: '180px',
+              display: 'flex', flexDirection: 'column',
+              alignItems: 'center', gap: '7px',
+              pointerEvents: 'none',
             }}>
+              {/* Section number */}
               <div style={{
-                fontFamily: "'Syne', sans-serif", fontSize: '11px', fontWeight: 700,
-                color: stall.color, letterSpacing: '0.25em', textAlign: 'center',
-                textShadow: `0 0 12px ${stall.color}`,
+                fontFamily: "'Inter', sans-serif", fontSize: '9px',
+                color: stall.color, opacity: 0.5, letterSpacing: '0.2em',
+              }}>
+                {String(stalls.findIndex(s => s.id === stall.id) + 1).padStart(2, '0')}
+              </div>
+              {/* Label */}
+              <div style={{
+                fontFamily: "'Syne', sans-serif", fontSize: '14px', fontWeight: 700,
+                color: stall.color, letterSpacing: '0.3em', textAlign: 'center',
+                textShadow: `0 0 16px ${stall.color}`,
               }}>{stall.label}</div>
-              <div style={{ width: '40px', height: '1px', background: stall.color, opacity: 0.5 }} />
+              {/* Divider */}
+              <div style={{ width: '50px', height: '1px', background: stall.color, opacity: 0.4 }} />
+              {/* Description */}
               <div style={{
-                fontFamily: "'Inter', sans-serif", fontSize: '8px',
-                color: '#555570', letterSpacing: '0.15em', textAlign: 'center',
-              }}>TAP TO EXPLORE</div>
+                fontFamily: "'Inter', sans-serif", fontSize: '9px',
+                color: '#8888AA', letterSpacing: '0.08em', textAlign: 'center',
+                lineHeight: 1.5,
+              }}>{STALL_DESCRIPTIONS[stall.id]}</div>
+              {/* CTA */}
+              <div style={{
+                fontFamily: "'Syne', sans-serif", fontSize: '8px',
+                color: stall.color, letterSpacing: '0.2em', textAlign: 'center',
+                marginTop: '2px', opacity: 0.7,
+              }}>TAP TO OPEN →</div>
             </div>
           </Html>
-          {/* Click hitbox */}
+
+          {/* ── Click hitbox ── */}
           <mesh
-            position={[0, 1.15, 0]}
+            position={[0, 1.3 * S, 0]}
             onClick={(e) => { e.stopPropagation(); onStallClick(stall.id); }}
             onPointerOver={() => { document.body.style.cursor = 'pointer'; }}
             onPointerOut={() => { document.body.style.cursor = 'none'; }}
           >
-            <boxGeometry args={[2.4, 3.0, 0.8]} />
+            <boxGeometry args={[2.6 * S, 3.2 * S, 0.9 * S]} />
             <meshBasicMaterial transparent opacity={0.0001} depthWrite={false} />
           </mesh>
-          {/* Point light */}
-          <pointLight position={[0, 1.5, 0.5]} color={stall.color} intensity={3} distance={8} decay={2} />
+
+          {/* ── Point lights ── */}
+          <pointLight position={[0, 1.8 * S, 0.6]} color={stall.color} intensity={4} distance={10} decay={2} />
+          <pointLight position={[0, 0.2, 0]} color={stall.color} intensity={1.5} distance={5} decay={2} />
+
+          {/* ── Floating arrow above stall ── */}
+          <StallArrow color={stall.color} />
         </group>
       ))}
     </>
