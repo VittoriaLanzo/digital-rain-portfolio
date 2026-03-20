@@ -1,36 +1,33 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import CityScene from '@/components/CityScene';
 import CustomCursor from '@/components/CustomCursor';
 import HeroDistrict from '@/components/HeroDistrict';
+import { ABOUT, SKILLS, WORK } from '@/content/sections';
 
-const STALL_INFO: Record<string, { title: string; color: string; icon: string }> = {
-  about:   { title: 'ABOUT',     color: '#6E6EFF', icon: '◈' },
-  skills:  { title: 'EXPERTISE', color: '#00FF88', icon: '⬡' },
-  work:    { title: 'WORK',      color: '#00D4FF', icon: '◻' },
-  lab:     { title: 'LAB',       color: '#FF2D78', icon: '◈' },
-  contact: { title: 'CONTACT',   color: '#6E6EFF', icon: '◎' },
-};
-
+/* ─── Nav dot definitions ──────────────────────────────────────────────── */
 const NAV_DOTS = [
-  { label: 'Hero',    range: [0, 0.14] },
+  { label: 'Hero',    range: [0,    0.14] },
   { label: 'About',   range: [0.15, 0.34] },
   { label: 'Skills',  range: [0.35, 0.51] },
   { label: 'Work',    range: [0.52, 0.69] },
   { label: 'Contact', range: [0.70, 1.00] },
 ];
 
+/* ═══════════════════════════════════════
+   INDEX PAGE
+   ═══════════════════════════════════════ */
 export default function Index() {
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [activeStall, setActiveStall] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
   const sp = scrollProgress;
 
   const handleScroll = useCallback(() => {
     const scrollTop = window.scrollY;
     const docHeight = document.documentElement.scrollHeight - window.innerHeight;
     if (docHeight <= 0) return;
-    const progress = Math.min(scrollTop / docHeight, 1);
-    setScrollProgress(progress);
+    setScrollProgress(Math.min(scrollTop / docHeight, 1));
   }, []);
 
   useEffect(() => {
@@ -38,22 +35,14 @@ export default function Index() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [handleScroll]);
 
-  useEffect(() => {
-    if (!activeStall) return;
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setActiveStall(null);
-    };
-    window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
-  }, [activeStall]);
-
+  /* Stall click → navigate to section page */
   const handleStallClick = useCallback((id: string) => {
     if (id === 'contact') {
       window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
     } else {
-      setActiveStall(id);
+      navigate(`/${id}`);
     }
-  }, []);
+  }, [navigate]);
 
   const scrollToProgress = useCallback((target: number) => {
     const docHeight = document.documentElement.scrollHeight - window.innerHeight;
@@ -87,9 +76,9 @@ export default function Index() {
            Skills  stall z=-55  →  panel: 0.29–0.44
            Work    stall z=-90  →  panel: 0.44–0.59
       ─────────────────────────────────────────────────────────────────── */}
-      <AboutPanel visible={sp >= 0.09 && sp < 0.29} />
-      <SkillsPanel visible={sp >= 0.29 && sp < 0.44} />
-      <WorkPanel visible={sp >= 0.44 && sp < 0.59} />
+      <AboutPanel  visible={sp >= 0.09 && sp < 0.29} onEnter={() => navigate('/about')} />
+      <SkillsPanel visible={sp >= 0.29 && sp < 0.44} onEnter={() => navigate('/skills')} />
+      <WorkPanel   visible={sp >= 0.44 && sp < 0.59} onEnter={() => navigate('/work')} />
 
       {/* ─── Nav Dots ─── */}
       <NavDots sp={sp} onNavigate={scrollToProgress} />
@@ -110,49 +99,44 @@ export default function Index() {
       </div>
 
       {/* ─── Scroll UX Indicators ─── */}
-      {/* Entry invite at page load */}
       <EntryScrollInvite visible={sp < 0.07} />
-
-      {/* "Coming up" hint just before About panel appears */}
-      <SectionAdvanceHint visible={sp >= 0.07 && sp < 0.09} label="About" color="#6E6EFF" />
-
-      {/* After all content panels are done, guide toward Lab & Contact stalls */}
-      <SectionAdvanceHint visible={sp >= 0.60 && sp < 0.68} label="Lab" color="#FF2D78" />
+      <SectionAdvanceHint visible={sp >= 0.07 && sp < 0.09} label="About"   color="#6E6EFF" />
+      <SectionAdvanceHint visible={sp >= 0.60 && sp < 0.68} label="Lab"     color="#FF2D78" />
       <SectionAdvanceHint visible={sp >= 0.75 && sp < 0.82} label="Contact" color="#6E6EFF" />
-
-      <ScrollHint visible={sp >= 0.82 && sp < 0.93} />
+      <ScrollHint         visible={sp >= 0.82 && sp < 0.93} />
       <BillboardFormOverlay visible={sp > 0.92} />
-      <StallMenuOverlay activeStall={activeStall} onClose={() => setActiveStall(null)} />
     </div>
   );
 }
 
 /* ═══════════════════════════════════════
-   GLASS PANEL (reusable)
+   GLASS PANEL (shared wrapper)
    ═══════════════════════════════════════ */
 
 interface GlassPanelProps {
   visible: boolean;
   side: 'left' | 'right';
-  /** Which side the 3D stall is on — opposite to side. Used for arrow direction. */
+  /** Which side the 3D stall is on — arrow points that way */
   stallSide: 'left' | 'right';
+  /** Accent color for the Enter button + top glow line */
+  color: string;
+  /** Called when the user clicks "Enter ↗" */
+  onEnter: () => void;
   children: React.ReactNode;
 }
 
-function GlassPanel({ visible, side, stallSide, children }: GlassPanelProps) {
-  // Arrow points toward the 3D stall (which is on the opposite side of the screen)
+function GlassPanel({ visible, side, stallSide, color, onEnter, children }: GlassPanelProps) {
   const arrowDir = stallSide === 'left' ? '←' : '→';
 
   return (
     <div style={{
       position: 'fixed',
-      // Bottom-anchored: keeps upper 3D city view unobstructed
       bottom: '24px',
-      left: side === 'left' ? '24px' : 'auto',
+      left:  side === 'left'  ? '24px' : 'auto',
       right: side === 'right' ? '24px' : 'auto',
       transform: visible
-        ? 'translateY(0) translateX(0)'
-        : `translateY(0) translateX(${side === 'left' ? '-120%' : '120%'})`,
+        ? 'translateX(0)'
+        : `translateX(${side === 'left' ? '-120%' : '120%'})`,
       opacity: visible ? 1 : 0,
       transition: 'transform 600ms cubic-bezier(0.16, 1, 0.3, 1), opacity 400ms ease',
       pointerEvents: visible ? 'auto' : 'none',
@@ -167,11 +151,44 @@ function GlassPanel({ visible, side, stallSide, children }: GlassPanelProps) {
       border: '1px solid rgba(110, 110, 255, 0.18)',
       borderRadius: '8px',
       boxShadow: '0 0 0 1px rgba(255,255,255,0.03), 0 -4px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)',
-      backgroundImage: 'linear-gradient(rgba(5,5,18,0.84), rgba(5,5,18,0.84)), repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.015) 2px, rgba(0,0,0,0.015) 4px)',
     }}>
-      <div style={{ height: '1px', background: 'linear-gradient(90deg, transparent, #6E6EFF55, transparent)' }} />
-      <div style={{ padding: '20px 24px' }}>{children}</div>
-      {/* Stall locator arrow — points toward the physical panel in the 3D scene */}
+      {/* Top glow line */}
+      <div style={{ height: '1px', background: `linear-gradient(90deg, transparent, ${color}55, transparent)` }} />
+
+      <div style={{ padding: '20px 24px' }}>
+        {children}
+
+        {/* ── Enter CTA ── */}
+        <button
+          onClick={onEnter}
+          style={{
+            marginTop: '20px',
+            width: '100%',
+            background: 'transparent',
+            border: `1px solid ${color}44`,
+            borderRadius: '5px',
+            color,
+            fontFamily: "'Syne', sans-serif",
+            fontSize: '11px',
+            letterSpacing: '0.2em',
+            padding: '9px 0',
+            cursor: 'pointer',
+            transition: 'background 200ms, border-color 200ms',
+          }}
+          onMouseEnter={e => {
+            (e.currentTarget as HTMLElement).style.background = `${color}18`;
+            (e.currentTarget as HTMLElement).style.borderColor = color;
+          }}
+          onMouseLeave={e => {
+            (e.currentTarget as HTMLElement).style.background = 'transparent';
+            (e.currentTarget as HTMLElement).style.borderColor = `${color}44`;
+          }}
+        >
+          ENTER ↗
+        </button>
+      </div>
+
+      {/* Stall locator arrow */}
       <div style={{
         position: 'absolute',
         top: '50%', transform: 'translateY(-50%)',
@@ -201,38 +218,32 @@ function GlassPanel({ visible, side, stallSide, children }: GlassPanelProps) {
   );
 }
 
-function SectionLabel({ label }: { label: string }) {
+function SectionLabel({ label, color = '#44445A' }: { label: string; color?: string }) {
   return (
     <div style={{
       fontFamily: "'Syne', sans-serif", fontSize: '10px', fontWeight: 600,
-      color: '#44445A', letterSpacing: '0.3em', textTransform: 'uppercase',
+      color, letterSpacing: '0.3em', textTransform: 'uppercase',
       marginBottom: '12px',
     }}>{label}</div>
   );
 }
 
 /* ─── About Panel ─── */
-// About stall is on the LEFT side of the road → panel appears on the RIGHT
-function AboutPanel({ visible }: { visible: boolean }) {
+function AboutPanel({ visible, onEnter }: { visible: boolean; onEnter: () => void }) {
   return (
-    <GlassPanel visible={visible} side="right" stallSide="left">
+    <GlassPanel visible={visible} side="right" stallSide="left" color="#6E6EFF" onEnter={onEnter}>
       <SectionLabel label="About" />
       <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '26px', fontWeight: 700, color: '#F0F0F5', lineHeight: 1.2, marginBottom: '16px' }}>
-        I make AI<br />think precisely.
+        {ABOUT.headline.split('\n').map((l, i) => <span key={i}>{l}{i === 0 && <br />}</span>)}
       </h2>
       <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '14px', color: '#8888AA', lineHeight: 1.8, marginBottom: '24px' }}>
-        I design the cognitive layer between human intent and machine execution — building the prompts, pipelines, and agentic frameworks that make intelligent systems behave precisely.
+        {ABOUT.bio}
       </p>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', paddingTop: '20px', borderTop: '1px solid #1E1E2E' }}>
-        {[
-          { n: '4+', l: 'Years in AI' },
-          { n: '20+', l: 'Pipelines Built' },
-          { n: '3', l: 'Languages' },
-          { n: '∞', l: 'Prompts Engineered' },
-        ].map(s => (
-          <div key={s.l}>
-            <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '28px', fontWeight: 700, color: '#6E6EFF', lineHeight: 1, marginBottom: '4px' }}>{s.n}</div>
-            <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '11px', color: '#44445A', letterSpacing: '0.05em' }}>{s.l}</div>
+        {ABOUT.stats.map(s => (
+          <div key={s.label}>
+            <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '28px', fontWeight: 700, color: '#6E6EFF', lineHeight: 1, marginBottom: '4px' }}>{s.value}</div>
+            <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '11px', color: '#44445A', letterSpacing: '0.05em' }}>{s.label}</div>
           </div>
         ))}
       </div>
@@ -241,24 +252,20 @@ function AboutPanel({ visible }: { visible: boolean }) {
 }
 
 /* ─── Skills Panel ─── */
-// Expertise stall is on the RIGHT side of the road → panel appears on the LEFT
-function SkillsPanel({ visible }: { visible: boolean }) {
+function SkillsPanel({ visible, onEnter }: { visible: boolean; onEnter: () => void }) {
   return (
-    <GlassPanel visible={visible} side="left" stallSide="right">
+    <GlassPanel visible={visible} side="left" stallSide="right" color="#00FF88" onEnter={onEnter}>
       <SectionLabel label="Expertise" />
       <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '26px', fontWeight: 700, color: '#F0F0F5', lineHeight: 1.2, marginBottom: '20px' }}>
-        The tools<br />are language.
+        {SKILLS.headline.split('\n').map((l, i) => <span key={i}>{l}{i === 0 && <br />}</span>)}
       </h2>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-        {[
-          { heading: 'Core Practice', items: ['Prompt Engineering', 'Agentic Design', 'AI Systems Architecture', 'Chain-of-Thought Design', 'RAG Pipelines', 'Human-AI Interaction'] },
-          { heading: 'Technical', items: ['Python', 'C', 'SQL', 'LaTeX', 'LLM Orchestration', 'Structured Outputs'] },
-        ].map(col => (
-          <div key={col.heading}>
-            <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '9px', fontWeight: 600, color: '#44445A', letterSpacing: '0.2em', marginBottom: '12px', textTransform: 'uppercase' }}>{col.heading}</div>
-            {col.items.map(item => (
+        {SKILLS.categories.map(cat => (
+          <div key={cat.name}>
+            <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '9px', fontWeight: 600, color: '#44445A', letterSpacing: '0.2em', marginBottom: '12px', textTransform: 'uppercase' }}>{cat.name}</div>
+            {cat.items.map(item => (
               <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                <div style={{ width: '4px', height: '4px', background: '#6E6EFF', flexShrink: 0 }} />
+                <div style={{ width: '4px', height: '4px', background: cat.color, flexShrink: 0 }} />
                 <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '13px', color: '#8888AA' }}>{item}</span>
               </div>
             ))}
@@ -270,28 +277,25 @@ function SkillsPanel({ visible }: { visible: boolean }) {
 }
 
 /* ─── Work Panel ─── */
-// Work stall is on the LEFT side of the road → panel appears on the RIGHT
-function WorkPanel({ visible }: { visible: boolean }) {
+function WorkPanel({ visible, onEnter }: { visible: boolean; onEnter: () => void }) {
   return (
-    <GlassPanel visible={visible} side="right" stallSide="left">
+    <GlassPanel visible={visible} side="right" stallSide="left" color="#00D4FF" onEnter={onEnter}>
       <SectionLabel label="Selected Work" />
       <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '26px', fontWeight: 700, color: '#F0F0F5', lineHeight: 1.2, marginBottom: '20px' }}>
-        Projects<br />that think.
+        {WORK.headline.split('\n').map((l, i) => <span key={i}>{l}{i === 0 && <br />}</span>)}
       </h2>
-      {[
-        { n: '01', name: 'PROJECT ONE', desc: 'Coming soon — details will be added here shortly.', stack: 'Stack · TBD' },
-        { n: '02', name: 'PROJECT TWO', desc: 'Coming soon — details will be added here shortly.', stack: 'Stack · TBD' },
-        { n: '03', name: 'PROJECT THREE', desc: 'Coming soon — details will be added here shortly.', stack: 'Stack · TBD' },
-      ].map((p, i) => (
-        <div key={p.n} style={{ paddingTop: i === 0 ? '0' : '16px', paddingBottom: '16px', borderBottom: '1px solid #1E1E2E' }}>
+      {WORK.projects.map((p, i) => (
+        <div key={p.id} style={{ paddingTop: i === 0 ? '0' : '16px', paddingBottom: '16px', borderBottom: '1px solid #1E1E2E' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '10px', color: '#44445A', letterSpacing: '0.2em', marginBottom: '4px' }}>{p.n}</div>
+              <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '10px', color: '#44445A', letterSpacing: '0.2em', marginBottom: '4px' }}>{p.id}</div>
               <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '15px', fontWeight: 700, color: '#F0F0F5', marginBottom: '4px', letterSpacing: '0.05em' }}>{p.name}</div>
               <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '12px', color: '#8888AA', marginBottom: '6px', lineHeight: 1.5 }}>{p.desc}</div>
-              <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '10px', color: '#44445A', letterSpacing: '0.05em' }}>{p.stack}</div>
+              {p.stack.length > 0 && (
+                <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '10px', color: '#44445A', letterSpacing: '0.05em' }}>{p.stack.join(' · ')}</div>
+              )}
             </div>
-            <div style={{ color: '#6E6EFF', fontSize: '16px', marginLeft: '12px', flexShrink: 0 }}>→</div>
+            <div style={{ color: '#00D4FF', fontSize: '16px', marginLeft: '12px', flexShrink: 0 }}>→</div>
           </div>
         </div>
       ))}
@@ -302,8 +306,6 @@ function WorkPanel({ visible }: { visible: boolean }) {
 /* ─── Nav Dots ─── */
 function NavDots({ sp, onNavigate }: { sp: number; onNavigate: (t: number) => void }) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
-  // Nav dots are on the right; all panels now bottom-anchored so no conflict
-  const hidden = false;
 
   return (
     <div style={{
@@ -311,9 +313,6 @@ function NavDots({ sp, onNavigate }: { sp: number; onNavigate: (t: number) => vo
       transform: 'translateY(-50%)', zIndex: 60,
       display: 'flex', flexDirection: 'column', gap: '14px',
       alignItems: 'center',
-      opacity: hidden ? 0 : 1,
-      transition: 'opacity 300ms',
-      pointerEvents: hidden ? 'none' : 'auto',
     }}>
       {NAV_DOTS.map((dot, i) => {
         const active = sp >= dot.range[0] && sp <= dot.range[1];
@@ -325,8 +324,7 @@ function NavDots({ sp, onNavigate }: { sp: number; onNavigate: (t: number) => vo
             <button
               onClick={() => onNavigate((dot.range[0] + dot.range[1]) / 2)}
               style={{
-                width: active ? '8px' : '6px',
-                height: active ? '8px' : '6px',
+                width: active ? '8px' : '6px', height: active ? '8px' : '6px',
                 borderRadius: '50%',
                 background: active ? '#6E6EFF' : '#1E1E2E',
                 border: active ? 'none' : '1px solid #2A2A3A',
@@ -370,7 +368,7 @@ function ScrollHint({ visible }: { visible: boolean }) {
   );
 }
 
-/* ─── Entry Scroll Invite (shown at page start) ─── */
+/* ─── Entry Scroll Invite ─── */
 function EntryScrollInvite({ visible }: { visible: boolean }) {
   return (
     <div style={{
@@ -386,7 +384,6 @@ function EntryScrollInvite({ visible }: { visible: boolean }) {
         fontFamily: "'Syne', sans-serif", fontSize: '10px',
         color: '#6E6EFF', letterSpacing: '0.35em', textTransform: 'uppercase',
       }}>Scroll to explore</div>
-      {/* Animated chevrons */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
         {[0, 1, 2].map(i => (
           <div key={i} style={{
@@ -409,7 +406,7 @@ function EntryScrollInvite({ visible }: { visible: boolean }) {
   );
 }
 
-/* ─── Section Advance Hint (tells user what's next) ─── */
+/* ─── Section Advance Hint ─── */
 function SectionAdvanceHint({ visible, label, color }: { visible: boolean; label: string; color: string }) {
   return (
     <div style={{
@@ -423,17 +420,12 @@ function SectionAdvanceHint({ visible, label, color }: { visible: boolean; label
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <div style={{ width: '20px', height: '1px', background: color, opacity: 0.5 }} />
-        <div style={{
-          fontFamily: "'Syne', sans-serif", fontSize: '9px',
-          color, letterSpacing: '0.3em', textTransform: 'uppercase', opacity: 0.8,
-        }}>scroll down · {label}</div>
+        <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '9px', color, letterSpacing: '0.3em', textTransform: 'uppercase', opacity: 0.8 }}>
+          scroll down · {label}
+        </div>
         <div style={{ width: '20px', height: '1px', background: color, opacity: 0.5 }} />
       </div>
-      <div style={{
-        width: '1px', height: '22px',
-        background: `linear-gradient(to bottom, ${color}, transparent)`,
-        animation: 'pulse 1.5s ease infinite',
-      }} />
+      <div style={{ width: '1px', height: '22px', background: `linear-gradient(to bottom, ${color}, transparent)`, animation: 'pulse 1.5s ease infinite' }} />
     </div>
   );
 }
@@ -513,53 +505,3 @@ function BillboardFormOverlay({ visible }: { visible: boolean }) {
     </div>
   );
 }
-
-/* ─── Stall Menu Overlay (glass style) ─── */
-function StallMenuOverlay({ activeStall, onClose }: { activeStall: string | null; onClose: () => void }) {
-  const info = activeStall ? STALL_INFO[activeStall] : null;
-
-  useEffect(() => {
-    if (!activeStall) return;
-    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
-  }, [activeStall, onClose]);
-
-  const stallColor = info?.color ?? '#6E6EFF';
-
-  return (
-    <div style={{
-      position: 'fixed', top: '50%', left: '50%',
-      transform: activeStall ? 'translate(-50%, -50%) scale(1)' : 'translate(-50%, -50%) scale(0.95)',
-      opacity: activeStall ? 1 : 0,
-      pointerEvents: activeStall ? 'auto' : 'none',
-      transition: 'all 300ms cubic-bezier(0.34, 1.56, 0.64, 1)',
-      zIndex: 200, width: '340px', maxWidth: '90vw',
-      background: 'rgba(5, 5, 18, 0.85)',
-      backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
-      border: `1px solid ${stallColor}33`,
-      borderRadius: '8px', padding: '32px',
-      boxShadow: `0 0 40px ${stallColor}22, inset 0 1px 0 rgba(255,255,255,0.05)`,
-    }}>
-      <div style={{ height: '1px', background: `linear-gradient(90deg, transparent, ${stallColor}55, transparent)`, marginBottom: '0', position: 'absolute', top: 0, left: 0, right: 0, borderRadius: '8px 8px 0 0' }} />
-      <button onClick={onClose} style={{ position: 'absolute', top: '12px', right: '16px', background: 'none', border: 'none', color: '#8888AA', fontSize: '18px', cursor: 'pointer', fontFamily: "'Inter', sans-serif" }}>×</button>
-      {info && (
-        <>
-          <div style={{ fontSize: '32px', color: stallColor, marginBottom: '16px', textAlign: 'center' }}>{info.icon}</div>
-          <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: '28px', color: '#F0F0F5', textAlign: 'center', letterSpacing: '0.1em', marginBottom: '12px' }}>{info.title}</div>
-          <div style={{ height: '1px', background: stallColor, opacity: 0.3, marginBottom: '16px' }} />
-          <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '13px', color: '#8888AA', lineHeight: 1.7, textAlign: 'center' }}>
-            This section is under construction.<br />Check back soon — something is being built here.
-          </div>
-          <div style={{ textAlign: 'center', marginTop: '16px' }}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 12px', border: `1px solid ${stallColor}44`, borderRadius: '20px', fontFamily: "'Syne', sans-serif", fontSize: '10px', letterSpacing: '0.2em', color: stallColor }}>
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: stallColor, animation: 'pulse 1.5s infinite' }} />
-              COMING SOON
-            </span>
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
