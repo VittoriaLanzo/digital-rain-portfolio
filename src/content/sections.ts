@@ -140,13 +140,23 @@ This work demonstrates both a technique improvement for diffusion models and a p
       name: 'NEONWALK',
       year: '2026',
       desc: 'This site. A cyberpunk city you scroll through — every building, raindrop, and neon sign generated in real time, with 3D kiosks as navigation.',
-      longDesc: `You're inside it right now. NEONWALK is a portfolio built as a fully immersive 3D environment: a rain-soaked cyberpunk street you fly down by scrolling. There are no menus or tabs — the navigation is the city itself. Five glowing kiosks line the sidewalk, each one a portal to a section of work. Scroll past them, or walk up and click.
+      longDesc: `You're inside it right now. NEONWALK is a personal portfolio built as a rain-soaked cyberpunk city you navigate by scrolling. No menus, no tabs — the city is the interface. Five glowing kiosks line the sidewalk, each a portal to a different section of work. A single number, scroll position from 0 to 1, drives everything: where the camera is, which panel slides in, when the contact form appears.
 
-Everything in the scene is generated fresh in your browser on every load. The buildings, their neon-panel textures, car positions, puddle placements, steam vents, street lamps, and rain particles are all computed procedurally from seed functions — no pre-baked assets, no sprite sheets. A single scroll value (0–1) drives the entire experience: camera position, which glass panel is visible, UI fade state, and contact form appearance are all derived from that one number.
+## For Designers
 
-For engineers: the scene runs on React Three Fiber (Three.js declarative layer) inside a Vite + React + TypeScript SPA. Procedural building textures are drawn with the Canvas 2D API at runtime and uploaded to the GPU as THREE.CanvasTexture objects. Rain is an instancedMesh of 300 particles (40 on mobile) repositioned each frame. Level-of-detail gates (LOD_NEAR = 40, LOD_MID = 80) cull distant geometry. Adaptive performance scaling via R3F's performance monitor keeps the frame rate stable on low-end devices. The contact email is never a complete string anywhere in the source or compiled bundle — it is assembled from split literals only at click time.
+The whole experience is one continuous spatial narrative. You arrive on a rain-slicked street at night, particles falling, steam rising from manholes, neon signs flickering overhead. The camera drifts forward as you scroll — a slow flythrough that makes the environment feel inhabited rather than decorative. Depth is real: buildings recede, rain layers, puddles catch light. Nothing is flat.
 
-CI enforces TypeScript strict mode, ESLint at zero warnings, and a successful Vite production build on every pull request. Routing is React Router v6; the contact form uses shadcn/ui with a mailto handler; section pages are full-scroll routes that share a sticky shell component and pull all content from a single typed data file.`,
+Navigation is architectural. The kiosks aren't buttons styled to look interesting — they are objects in space, with glowing top caps, pillar frames, and a visible screen face. You approach them, they react to your cursor. The interaction model is show-don't-label: spatial framing does the work that microcopy usually does.
+
+Typography runs on two faces throughout: Syne (geometric, constructed, slightly cold) for headings and UI labels; Inter (neutral, readable) for body text. The palette is deliberately constrained — near-black background (#050512), five accent colors each tied to a specific section, everything else kept dim. Color carries meaning here; it doesn't decorate.
+
+## For Engineers
+
+The 3D scene runs on React Three Fiber (Three.js declarative wrapper) inside a Vite + TypeScript SPA. Every visual element is procedurally generated at runtime — building positions, façade textures (drawn via Canvas 2D API and uploaded as THREE.CanvasTexture), car placements, puddle and manhole layouts, street lamp spacing, neon sign words. No pre-baked assets. On load, the scene is fully constructed from seed functions inside useMemo hooks.
+
+Rain is a single instancedMesh of 300 particles (40 on mobile) with matrix positions updated per frame. Level-of-detail gates (LOD_NEAR = 40, LOD_MID = 80) cull geometry below the visible threshold. R3F's adaptive performance monitor adjusts pixel ratio dynamically under sustained load. On mobile, FloatingDust is disabled entirely and Stars drop from 1200 to 400. Click targets on the 3D kiosks are handled at the group level in R3F — any mesh in the group propagates pointer events upward, making the full physical structure interactive without an invisible hitbox overlay.
+
+The master scroll variable (0–1) is the only stateful control: camera lerp targets, glass panel visibility windows, hero fade, and contact form reveal are all pure functions of that one number — no imperative animation, no timeline library. CI enforces tsc --noEmit strict, ESLint at zero warnings, and vite build on every PR. The contact email is never a complete string in source or bundle; it is assembled from split string literals only at the moment of click.`,
       stack: ['React', 'TypeScript', 'Three.js', 'React Three Fiber', 'Vite', 'Procedural Generation'],
       link: null as string | null,
     },

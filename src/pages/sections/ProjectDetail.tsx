@@ -116,16 +116,33 @@ export default function ProjectDetail() {
         {/* Long description */}
         {project.longDesc && (
           <div style={{ marginBottom: '48px' }}>
-            {project.longDesc.split('\n\n').map((para, i) => (
-              <p
-                key={i}
-                style={{
-                  fontFamily: "'Inter', sans-serif", fontSize: '15px',
-                  color: '#8888AA', lineHeight: 1.85,
-                  marginBottom: '20px',
-                }}
-              >{para}</p>
-            ))}
+            {project.longDesc.split('\n\n').map((para, i) => {
+              if (para.startsWith('## ')) {
+                return (
+                  <div key={i} style={{
+                    display: 'flex', alignItems: 'center', gap: '16px',
+                    margin: '40px 0 20px',
+                  }}>
+                    <div style={{ flex: 1, height: '1px', background: '#1E1E2E' }} />
+                    <span style={{
+                      fontFamily: "'Syne', sans-serif", fontSize: '10px',
+                      letterSpacing: '0.3em', color: COLOR, whiteSpace: 'nowrap',
+                    }}>{para.slice(3).toUpperCase()}</span>
+                    <div style={{ flex: 1, height: '1px', background: '#1E1E2E' }} />
+                  </div>
+                );
+              }
+              return (
+                <p
+                  key={i}
+                  style={{
+                    fontFamily: "'Inter', sans-serif", fontSize: '15px',
+                    color: '#8888AA', lineHeight: 1.85,
+                    marginBottom: '20px',
+                  }}
+                >{para}</p>
+              );
+            })}
           </div>
         )}
 
