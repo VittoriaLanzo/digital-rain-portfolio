@@ -468,10 +468,10 @@ function BillboardFormOverlay({ visible }: { visible: boolean }) {
       pointerEvents: visible ? 'auto' : 'none',
       transition: 'opacity 500ms ease, transform 500ms ease',
       width: '460px', maxWidth: '92vw', maxHeight: '85vh', overflowY: 'auto',
-      background: 'rgba(8,8,20,0.97)',
-      border: '1px solid #6E6EFF', borderRadius: '12px', padding: '32px',
-      boxShadow: '0 0 60px rgba(110,110,255,0.15)',
-      backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+      background: 'rgba(4,4,12,0.96)',
+      border: '1px solid rgba(0,212,255,0.18)', borderRadius: '12px', padding: '32px',
+      boxShadow: '0 16px 64px rgba(0,0,0,0.7), inset 0 1px 0 rgba(0,212,255,0.07)',
+      backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)',
     }}>
       <button
         onClick={() => window.scrollTo({ top: window.scrollY - window.innerHeight * 0.15, behavior: 'smooth' })}
@@ -483,24 +483,30 @@ function BillboardFormOverlay({ visible }: { visible: boolean }) {
           fontFamily: "'Inter', sans-serif", fontSize: '14px',
           display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1,
         }}
-        onMouseEnter={e => { (e.target as HTMLElement).style.borderColor = '#6E6EFF'; }}
+        onMouseEnter={e => { (e.target as HTMLElement).style.borderColor = '#00D4FF'; }}
         onMouseLeave={e => { (e.target as HTMLElement).style.borderColor = '#1E1E2E'; }}
       >×</button>
 
-      <div style={{ width: '72px', height: '72px', borderRadius: '50%', border: '2px solid #6E6EFF', background: '#0F0F1A', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Syne', sans-serif", fontSize: '20px', fontWeight: 700, color: '#6E6EFF', margin: '0 auto 12px' }}>VL</div>
+      <div style={{ position: 'relative', width: '72px', height: '72px', margin: '0 auto 12px', borderRadius: '50%', border: '1.5px solid rgba(0,212,255,0.45)', boxShadow: '0 0 14px rgba(0,212,255,0.12)', overflow: 'hidden', background: '#0A0A18', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <img src="/adapted_photo.png" alt="Vittoria Lanzo"
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block', filter: 'contrast(1.18) brightness(0.82) saturate(0.72)' }}
+          onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+        />
+        <span aria-hidden="true" style={{ fontFamily: "'Syne', sans-serif", fontSize: '18px', fontWeight: 700, color: 'rgba(0,212,255,0.5)', letterSpacing: '0.05em', zIndex: 0 }}>VL</span>
+      </div>
       <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: '16px', color: '#F0F0F5', textAlign: 'center', letterSpacing: '0.15em', marginBottom: '4px' }}>VITTORIA LANZO</div>
-      <div style={{ fontSize: '11px', color: '#8888AA', textAlign: 'center', letterSpacing: '0.1em', marginBottom: '20px' }}>AI Prompt Engineer · Agentic Systems Designer</div>
+      <div style={{ fontSize: '11px', color: '#8888AA', textAlign: 'center', letterSpacing: '0.1em', marginBottom: '20px' }}>AI Systems Architect · Product Designer · Frontend Engineer</div>
       <div style={{ height: '1px', background: '#1E1E2E', marginBottom: '20px' }} />
       <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: '22px', color: '#F0F0F5', marginBottom: '6px' }}>Start a conversation.</div>
       <div style={{ fontSize: '13px', color: '#8888AA', marginBottom: '20px' }}>Open to collaborations and AI architecture consulting.</div>
 
       <form onSubmit={handleSubmit}>
-        <input type="text" placeholder="Your name" value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} style={inputStyle} onFocus={e => { e.target.style.borderColor = '#6E6EFF'; }} onBlur={e => { e.target.style.borderColor = '#1E1E2E'; }} />
-        <input type="email" placeholder="you@example.com" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} style={inputStyle} onFocus={e => { e.target.style.borderColor = '#6E6EFF'; }} onBlur={e => { e.target.style.borderColor = '#1E1E2E'; }} />
-        <textarea placeholder="Describe your vision..." value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))} style={{ ...inputStyle, height: '90px', resize: 'none' }} onFocus={e => { e.target.style.borderColor = '#6E6EFF'; }} onBlur={e => { e.target.style.borderColor = '#1E1E2E'; }} />
-        <button type="submit" style={{ width: '100%', background: '#6E6EFF', color: 'white', border: 'none', borderRadius: '6px', fontFamily: "'Syne', sans-serif", fontSize: '13px', fontWeight: 500, letterSpacing: '0.05em', padding: '13px', cursor: 'pointer', marginTop: '4px' }}
-          onMouseEnter={e => { (e.target as HTMLElement).style.background = '#8A8AFF'; }}
-          onMouseLeave={e => { (e.target as HTMLElement).style.background = '#6E6EFF'; }}
+        <input type="text" placeholder="Your name" value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} style={inputStyle} onFocus={e => { e.target.style.borderColor = '#00D4FF'; }} onBlur={e => { e.target.style.borderColor = '#1E1E2E'; }} />
+        <input type="email" placeholder="you@example.com" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} style={inputStyle} onFocus={e => { e.target.style.borderColor = '#00D4FF'; }} onBlur={e => { e.target.style.borderColor = '#1E1E2E'; }} />
+        <textarea placeholder="Describe your vision..." value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))} style={{ ...inputStyle, height: '90px', resize: 'none' }} onFocus={e => { e.target.style.borderColor = '#00D4FF'; }} onBlur={e => { e.target.style.borderColor = '#1E1E2E'; }} />
+        <button type="submit" disabled={sent} style={{ width: '100%', background: '#00D4FF', color: '#050512', border: 'none', borderRadius: '6px', fontFamily: "'Syne', sans-serif", fontSize: '13px', fontWeight: 600, letterSpacing: '0.05em', padding: '13px', cursor: sent ? 'default' : 'pointer', opacity: sent ? 0.75 : 1, marginTop: '4px', transition: 'opacity 200ms' }}
+          onMouseEnter={e => { if (!sent) (e.target as HTMLElement).style.background = '#33DDFF'; }}
+          onMouseLeave={e => { if (!sent) (e.target as HTMLElement).style.background = '#00D4FF'; }}
         >{sent ? 'Sent ✓' : 'Send Message'}</button>
       </form>
 
@@ -510,15 +516,16 @@ function BillboardFormOverlay({ visible }: { visible: boolean }) {
           onMouseEnter={e => { (e.target as HTMLElement).style.color = '#8888AA'; }}
           onMouseLeave={e => { (e.target as HTMLElement).style.color = '#44445A'; }}
         >GitHub</a>
-        <a href="https://instagram.com/VittoriaLanzo" target="_blank" rel="noopener noreferrer"
+        <a href="https://www.instagram.com/vittoria.lanzo?igsh=c3MwN2pzdnQxem9p" target="_blank" rel="noopener noreferrer"
           style={{ fontSize: '11px', color: '#44445A', letterSpacing: '0.15em', textDecoration: 'none' }}
           onMouseEnter={e => { (e.target as HTMLElement).style.color = '#8888AA'; }}
           onMouseLeave={e => { (e.target as HTMLElement).style.color = '#44445A'; }}
         >Instagram</a>
-        <span
-          title="LinkedIn — coming soon"
-          style={{ fontSize: '11px', color: '#2A2A3A', letterSpacing: '0.15em', cursor: 'default' }}
-        >LinkedIn</span>
+        <a href="https://www.linkedin.com/in/vittoria-lanzo-626a8426b?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" rel="noopener noreferrer"
+          style={{ fontSize: '11px', color: '#44445A', letterSpacing: '0.15em', textDecoration: 'none' }}
+          onMouseEnter={e => { (e.target as HTMLElement).style.color = '#8888AA'; }}
+          onMouseLeave={e => { (e.target as HTMLElement).style.color = '#44445A'; }}
+        >LinkedIn</a>
       </div>
       <div style={{ textAlign: 'center', marginTop: '14px' }}>
         <button
@@ -532,7 +539,7 @@ function BillboardFormOverlay({ visible }: { visible: boolean }) {
             fontSize: '11px', color: '#44445A', letterSpacing: '0.1em',
             fontFamily: "'Inter', sans-serif",
           }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#6E6EFF'; }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#00D4FF'; }}
           onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#44445A'; }}
         >✉ Email me directly</button>
       </div>
