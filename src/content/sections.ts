@@ -61,10 +61,10 @@ export const ABOUT = {
   bio: 'From brand systems to React components to agentic pipelines — I design and ship the full experience layer, including the AI that powers it.',
 
   stats: [
-    { value: '3',   label: 'Products Shipped' },
-    { value: '22m', label: 'Avg Session, Sestara' },
-    { value: '4+',  label: 'Years Across Disciplines' },
-    { value: '1',   label: 'Research Publication' },
+    { value: '3',  label: 'Products Shipped' },
+    { value: '3',  label: 'Core Languages' },
+    { value: '4+', label: 'Years Across Disciplines' },
+    { value: '1',  label: 'Research Publication' },
   ] as Stat[],
 
   // ── Add entries like: { year: '2024', role: 'AI Architect', org: 'Company', desc: 'What you did.' }
