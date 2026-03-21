@@ -487,7 +487,25 @@ function BillboardFormOverlay({ visible }: { visible: boolean }) {
         onMouseLeave={e => { (e.target as HTMLElement).style.borderColor = '#1E1E2E'; }}
       >×</button>
 
-      <div style={{ width: '72px', height: '72px', borderRadius: '50%', border: '2px solid #6E6EFF', background: '#0F0F1A', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Syne', sans-serif", fontSize: '20px', fontWeight: 700, color: '#6E6EFF', margin: '0 auto 12px' }}>VL</div>
+      <svg width="80" height="80" viewBox="0 0 80 80" fill="none" aria-hidden="true" style={{ display: 'block', margin: '0 auto 12px' }}>
+        <defs>
+          <filter id="vl-glow-f" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="1.5" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+        <circle cx="40" cy="40" r="37" stroke="#6E6EFF" strokeWidth="1.5" />
+        <circle cx="40" cy="40" r="33" stroke="#6E6EFF" strokeWidth="0.5" strokeDasharray="3 4" opacity="0.4" />
+        <path d="M14 21 L28 55 L42 21" stroke="#6E6EFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" filter="url(#vl-glow-f)" />
+        <path d="M46 21 L46 55 L66 55" stroke="#00D4FF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" filter="url(#vl-glow-f)" />
+        <circle cx="14" cy="21" r="1.5" fill="#6E6EFF" opacity="0.8" />
+        <circle cx="42" cy="21" r="1.5" fill="#6E6EFF" opacity="0.8" />
+        <circle cx="46" cy="21" r="1.5" fill="#00D4FF" opacity="0.8" />
+        <circle cx="66" cy="55" r="1.5" fill="#00D4FF" opacity="0.8" />
+      </svg>
       <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: '16px', color: '#F0F0F5', textAlign: 'center', letterSpacing: '0.15em', marginBottom: '4px' }}>VITTORIA LANZO</div>
       <div style={{ fontSize: '11px', color: '#8888AA', textAlign: 'center', letterSpacing: '0.1em', marginBottom: '20px' }}>AI Prompt Engineer · Agentic Systems Designer</div>
       <div style={{ height: '1px', background: '#1E1E2E', marginBottom: '20px' }} />

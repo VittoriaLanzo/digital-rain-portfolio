@@ -979,7 +979,19 @@ function EndOfStreetBuilding({ brickMap }: { brickMap: THREE.Texture }) {
       ))}
       {/* Mural Html - identity panel — bigger */}
       <Html position={[0, 15, 4.12]} transform occlude={false} distanceFactor={28} style={{ pointerEvents: 'none' }}>
-        <div style={{ width: '360px', height: '520px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '14px' }}>
+        <div style={{ position: 'relative', width: '360px', height: '520px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '14px' }}>
+          {/* Decorative arc elements — partial circumference strokes */}
+          <svg aria-hidden="true" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', overflow: 'hidden' }} viewBox="0 0 360 520">
+            {/* Arc 1 — large cyan, top-right, ~1/4 arc (r=160, circ≈1005) */}
+            <circle cx="360" cy="80" r="160" stroke="#00D4FF" strokeWidth="1.2" fill="none"
+              strokeDasharray="251 754" strokeDashoffset="-100" opacity="0.25" />
+            {/* Arc 2 — medium violet, bottom-left, ~1/3 arc (r=110, circ≈691) */}
+            <circle cx="20" cy="480" r="110" stroke="#6E6EFF" strokeWidth="1.5" fill="none"
+              strokeDasharray="230 461" strokeDashoffset="60" opacity="0.30" />
+            {/* Arc 3 — small white, center-right, ~1/4 arc (r=70, circ≈440) */}
+            <circle cx="340" cy="280" r="70" stroke="#F0F0F5" strokeWidth="0.8" fill="none"
+              strokeDasharray="110 330" strokeDashoffset="-20" opacity="0.16" />
+          </svg>
           {/* Profile photo — neon-graded, circular */}
           <div style={{ position: 'relative', width: '180px', height: '180px' }}>
             {/* Outer ambient glow ring */}
@@ -1006,7 +1018,7 @@ function EndOfStreetBuilding({ brickMap }: { brickMap: THREE.Texture }) {
           <div style={{ fontFamily: 'Syne, sans-serif', fontSize: '20px', fontWeight: 700, color: '#F0F0F5', letterSpacing: '0.2em', textAlign: 'center' }}>VITTORIA LANZO</div>
           <div style={{ width: '120px', height: '1px', background: 'linear-gradient(90deg, transparent, #6E6EFF, transparent)' }} />
           <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '13px', color: '#8888AA', letterSpacing: '0.15em', textAlign: 'center' }}>AI PROMPT ENGINEER</div>
-          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '11px', color: '#44445A', letterSpacing: '0.1em', textAlign: 'center' }}>AGENTIC SYSTEMS DESIGNER</div>
+          <div style={{ fontFamily: 'Syne, sans-serif', fontSize: '32px', fontWeight: 700, color: '#F0F0F5', letterSpacing: '0.1em', textAlign: 'center', textShadow: '0 0 24px rgba(110,110,255,0.55)', lineHeight: 1.25 }}>I build before<br />I&#39;m asked.</div>
         </div>
       </Html>
       {/* Neon front strip */}
