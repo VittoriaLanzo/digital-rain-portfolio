@@ -439,6 +439,7 @@ function SectionAdvanceHint({ visible, label, color }: { visible: boolean; label
 function BillboardFormOverlay({ visible }: { visible: boolean }) {
   const [form, setForm] = useState({ name: '', email: '', message: '' });
   const [sent, setSent] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -462,16 +463,16 @@ function BillboardFormOverlay({ visible }: { visible: boolean }) {
 
   return (
     <div style={{
-      position: 'fixed', bottom: '5vh', left: '50%',
-      transform: visible ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(40px)',
+      position: 'fixed', bottom: '4vh', left: '50%',
+      transform: visible ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(48px)',
       zIndex: 100, opacity: visible ? 1 : 0,
       pointerEvents: visible ? 'auto' : 'none',
-      transition: 'opacity 500ms ease, transform 500ms ease',
-      width: '460px', maxWidth: '92vw', maxHeight: '85vh', overflowY: 'auto',
-      background: 'rgba(4,4,12,0.96)',
-      border: '1px solid rgba(0,212,255,0.18)', borderRadius: '12px', padding: '32px',
-      boxShadow: '0 16px 64px rgba(0,0,0,0.7), inset 0 1px 0 rgba(0,212,255,0.07)',
-      backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)',
+      transition: 'opacity 600ms cubic-bezier(0.16, 1, 0.3, 1), transform 600ms cubic-bezier(0.16, 1, 0.3, 1)',
+      width: '440px', maxWidth: '90vw', maxHeight: '88vh', overflowY: 'auto',
+      background: 'rgba(4,4,14,0.97)',
+      border: '1px solid rgba(0,212,255,0.15)', borderRadius: '14px', padding: '28px 32px',
+      boxShadow: '0 24px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.02), inset 0 1px 0 rgba(0,212,255,0.07)',
+      backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
     }}>
       <button
         onClick={() => window.scrollTo({ top: window.scrollY - window.innerHeight * 0.15, behavior: 'smooth' })}
@@ -487,12 +488,16 @@ function BillboardFormOverlay({ visible }: { visible: boolean }) {
         onMouseLeave={e => { (e.target as HTMLElement).style.borderColor = '#1E1E2E'; }}
       >×</button>
 
-      <div style={{ position: 'relative', width: '72px', height: '72px', margin: '0 auto 12px', borderRadius: '50%', border: '1.5px solid rgba(0,212,255,0.45)', boxShadow: '0 0 14px rgba(0,212,255,0.12)', overflow: 'hidden', background: '#0A0A18', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ position: 'relative', width: '72px', height: '72px', margin: '0 auto 12px', borderRadius: '50%', border: '1.5px solid rgba(0,212,255,0.45)', boxShadow: '0 0 14px rgba(0,212,255,0.12)', overflow: 'hidden', background: '#0A0A18' }}>
+        {/* Fallback monogram — only visible while image hasn't loaded yet */}
+        {!imgLoaded && (
+          <span aria-hidden="true" style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Syne', sans-serif", fontSize: '18px', fontWeight: 700, color: 'rgba(0,212,255,0.5)', letterSpacing: '0.05em' }}>VL</span>
+        )}
         <img src="/adapted_photo.png" alt="Vittoria Lanzo"
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block', filter: 'contrast(1.18) brightness(0.82) saturate(0.72)' }}
+          onLoad={() => setImgLoaded(true)}
           onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
         />
-        <span aria-hidden="true" style={{ fontFamily: "'Syne', sans-serif", fontSize: '18px', fontWeight: 700, color: 'rgba(0,212,255,0.5)', letterSpacing: '0.05em', zIndex: 0 }}>VL</span>
       </div>
       <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: '16px', color: '#F0F0F5', textAlign: 'center', letterSpacing: '0.15em', marginBottom: '4px' }}>VITTORIA LANZO</div>
       <div style={{ fontSize: '11px', color: '#8888AA', textAlign: 'center', letterSpacing: '0.1em', marginBottom: '20px' }}>AI Systems Architect · Product Designer · Frontend Engineer</div>

@@ -1204,14 +1204,14 @@ function FloatingDust() {
 /* ─── Camera Controller ─── */
 function CameraController({ scrollProgress }: { scrollProgress: number }) {
   const { camera } = useThree();
-  // Cache scrollable height — only changes on window resize, not on every frame.
-  // scrollHeight is a layout-flush property; reading it at 60fps wastes CPU.
-  // window.scrollY is a simple cached read and is safe to call every frame.
   const docHeightRef = useRef(
     typeof window !== 'undefined'
       ? document.documentElement.scrollHeight - window.innerHeight
       : 0
   );
+  // Smooth look-at target, lerped each frame
+  const lookAtRef = useRef(new THREE.Vector3(0, 3, 10));
+
   useEffect(() => {
     const update = () => {
       docHeightRef.current = document.documentElement.scrollHeight - window.innerHeight;
@@ -1225,31 +1225,35 @@ function CameraController({ scrollProgress }: { scrollProgress: number }) {
       ? Math.min(window.scrollY / docHeightRef.current, 1)
       : scrollProgress;
 
-    let z: number, y: number;
+    let targetZ: number, targetY: number;
+    const targetLookAt = new THREE.Vector3();
 
     if (t <= 0.80) {
-      z = THREE.MathUtils.lerp(30, -155, t / 0.80);
-      y = 3;
-      camera.position.set(0, y, z);
-      camera.lookAt(0, 3, z - 20);
+      targetZ = THREE.MathUtils.lerp(30, -155, t / 0.80);
+      targetY = 3;
+      targetLookAt.set(0, 3, targetZ - 20);
     } else {
       const sub = (t - 0.80) / 0.20;
       if (sub < 0.5) {
-        // Phase 1: approach the building
         const s = sub * 2;
-        z = THREE.MathUtils.lerp(-155, -200, s);
-        y = THREE.MathUtils.lerp(3, 12, s);
-        camera.position.set(0, y, z);
-        camera.lookAt(0, 15, -215);
+        targetZ = THREE.MathUtils.lerp(-155, -200, s);
+        targetY = THREE.MathUtils.lerp(3, 12, s);
+        targetLookAt.set(0, 15, -215);
       } else {
-        // Phase 2: rise above the rooftop (y=30.25)
         const s = (sub - 0.5) * 2;
-        z = THREE.MathUtils.lerp(-200, -195, s);
-        y = THREE.MathUtils.lerp(12, 38, s);
-        camera.position.set(0, y, z);
-        camera.lookAt(0, THREE.MathUtils.lerp(15, 32, s), -215);
+        targetZ = THREE.MathUtils.lerp(-200, -195, s);
+        targetY = THREE.MathUtils.lerp(12, 38, s);
+        targetLookAt.set(0, THREE.MathUtils.lerp(15, 32, s), -215);
       }
     }
+
+    // Smooth cinematic damping — 0.09 per frame ≈ very responsive but no hard snap
+    const lf = 0.09;
+    camera.position.x = THREE.MathUtils.lerp(camera.position.x, 0, lf);
+    camera.position.y = THREE.MathUtils.lerp(camera.position.y, targetY, lf);
+    camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ, lf);
+    lookAtRef.current.lerp(targetLookAt, lf);
+    camera.lookAt(lookAtRef.current);
   });
   return null;
 }
@@ -1456,6 +1460,17 @@ function NavigationStalls({ onStallClick }: { onStallClick: (id: string) => void
               }}>TAP TO OPEN →</div>
             </div>
           </Html>
+
+          {/* ── Invisible hit mesh — guarantees clicks reach the group regardless of Html overlay ── */}
+          <mesh
+            position={[0, 1.225 * S, 0.15 * S]}
+            onClick={(e) => { e.stopPropagation(); onStallClick(stall.id); }}
+            onPointerOver={(e) => { e.stopPropagation(); document.body.style.cursor = 'pointer'; }}
+            onPointerOut={(e) => { e.stopPropagation(); document.body.style.cursor = 'none'; }}
+          >
+            <planeGeometry args={[1.8 * S, 2.6 * S]} />
+            <meshBasicMaterial transparent opacity={0.001} depthWrite={false} side={THREE.DoubleSide} />
+          </mesh>
 
           {/* ── Point lights ── */}
           <pointLight position={[0, 1.8 * S, 0.6]} color={stall.color} intensity={4} distance={10} decay={2} />
