@@ -67,8 +67,32 @@ export const ABOUT = {
     { value: '1',  label: 'ML Extended Abstract' },
   ] as Stat[],
 
-  // ── Add entries like: { year: '2024', role: 'AI Architect', org: 'Company', desc: 'What you did.' }
-  experiences: [] as Experience[],
+  experiences: [
+    {
+      year: '2026',
+      role: 'Independent Researcher',
+      org: 'Self-directed · EEML 2026',
+      desc: 'Investigated timestep-localization of minority guidance in diffusion denoising. Designed and ran 250 experiments via an agentic pipeline on Kaggle. Extended abstract submitted to EEML 2026.',
+    },
+    {
+      year: '2026',
+      role: 'Designer & Engineer',
+      org: 'NEONWALK',
+      desc: 'Designed and built this portfolio as a fully navigable 3D cyberpunk city in WebGL — procedural geometry, scroll-driven camera, and every UI element engineered from scratch.',
+    },
+    {
+      year: '2025',
+      role: 'Product Designer · Frontend Engineer · AI Engineer',
+      org: 'Sestara',
+      desc: 'Sole product, design, and AI lead on a free edtech platform built at a hackathon. Designed the system, wrote all React components, engineered all prompts. 22m11s average session in 90 days.',
+    },
+    {
+      year: '2024',
+      role: 'AI Systems Designer',
+      org: 'CodeMentor',
+      desc: 'Co-built a Chrome extension coaching learners through DSA problems on LeetCode, Codeforces, and HackerRank. Designed a four-level progressive hint system and a stuck-detection response loop.',
+    },
+  ] as Experience[],
 };
 
 // ─── Skills ───────────────────────────────────────────────────────────────
