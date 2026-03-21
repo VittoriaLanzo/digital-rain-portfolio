@@ -3,15 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import CityScene from '@/components/CityScene';
 import CustomCursor from '@/components/CustomCursor';
 import HeroDistrict from '@/components/HeroDistrict';
-import { ABOUT, SKILLS, WORK } from '@/content/sections';
+import { ABOUT, SKILLS, WORK, LAB } from '@/content/sections';
 
 /* ─── Nav dot definitions ──────────────────────────────────────────────── */
 const NAV_DOTS = [
-  { label: 'Hero',    range: [0,    0.14] },
-  { label: 'About',   range: [0.15, 0.34] },
-  { label: 'Skills',  range: [0.35, 0.51] },
-  { label: 'Work',    range: [0.52, 0.69] },
-  { label: 'Contact', range: [0.70, 1.00] },
+  { label: 'Hero',    range: [0,    0.08] },
+  { label: 'About',   range: [0.09, 0.28] },
+  { label: 'Skills',  range: [0.29, 0.43] },
+  { label: 'Work',    range: [0.44, 0.58] },
+  { label: 'Lab',     range: [0.59, 0.74] },
+  { label: 'Contact', range: [0.75, 1.00] },
 ];
 
 /* ═══════════════════════════════════════
@@ -79,6 +80,7 @@ export default function Index() {
       <AboutPanel  visible={sp >= 0.09 && sp < 0.29} onEnter={() => navigate('/about')} />
       <SkillsPanel visible={sp >= 0.29 && sp < 0.44} onEnter={() => navigate('/skills')} />
       <WorkPanel   visible={sp >= 0.44 && sp < 0.59} onEnter={() => navigate('/work')} />
+      <LabPanel    visible={sp >= 0.59 && sp < 0.75} onEnter={() => navigate('/lab')} />
 
       {/* ─── Nav Dots ─── */}
       <NavDots sp={sp} onNavigate={scrollToProgress} />
@@ -101,7 +103,7 @@ export default function Index() {
       {/* ─── Scroll UX Indicators ─── */}
       <EntryScrollInvite visible={sp < 0.07} />
       <SectionAdvanceHint visible={sp >= 0.07 && sp < 0.09} label="About"   color="#6E6EFF" />
-      <SectionAdvanceHint visible={sp >= 0.60 && sp < 0.68} label="Lab"     color="#FF2D78" />
+      <SectionAdvanceHint visible={sp >= 0.56 && sp < 0.59} label="Lab"     color="#FF2D78" />
       <SectionAdvanceHint visible={sp >= 0.75 && sp < 0.82} label="Contact" color="#6E6EFF" />
       <ScrollHint         visible={sp >= 0.82 && sp < 0.93} />
       <BillboardFormOverlay visible={sp > 0.92} />
@@ -304,6 +306,21 @@ function WorkPanel({ visible, onEnter }: { visible: boolean; onEnter: () => void
           </div>
         </div>
       ))}
+    </GlassPanel>
+  );
+}
+
+/* ─── Lab Panel ─── */
+function LabPanel({ visible, onEnter }: { visible: boolean; onEnter: () => void }) {
+  return (
+    <GlassPanel visible={visible} side="left" stallSide="right" color="#FF2D78" onEnter={onEnter}>
+      <SectionLabel label="Lab" color="#FF2D78" />
+      <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '26px', fontWeight: 700, color: '#F0F0F5', lineHeight: 1.2, marginBottom: '16px' }}>
+        {LAB.headline.split('\n').map((l, i) => <span key={i}>{l}{i === 0 && <br />}</span>)}
+      </h2>
+      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '14px', color: '#8888AA', lineHeight: 1.8 }}>
+        {LAB.tagline}
+      </p>
     </GlassPanel>
   );
 }
