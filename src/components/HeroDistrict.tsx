@@ -31,18 +31,11 @@ export default function HeroDistrict() {
         typeId = null;
         pauseId = setTimeout(() => {
           pauseId = null;
-          eraseId = setInterval(() => {
-            i--;
-            setDisplayText(role.slice(0, i));
-            if (i <= 0) {
-              clearInterval(eraseId!);
-              eraseId = null;
-              setRoleIdx(prev => (prev + 1) % roles.length);
-            }
-          }, 30);
-        }, 2000);
+          setDisplayText('');
+          setRoleIdx(prev => (prev + 1) % roles.length);
+        }, 2200);
       }
-    }, 80);
+    }, 50);
 
     return () => {
       if (typeId !== null) clearInterval(typeId);
