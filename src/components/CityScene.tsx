@@ -979,12 +979,83 @@ function EndOfStreetBuilding({ brickMap }: { brickMap: THREE.Texture }) {
       ))}
       {/* Mural Html - identity panel — bigger */}
       <Html position={[0, 15, 4.12]} transform occlude={false} distanceFactor={28} style={{ pointerEvents: 'none' }}>
-        <div style={{ width: '360px', height: '520px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '14px' }}>
-          {/* Outer ring */}
-          <div style={{ position: 'relative', width: '180px', height: '180px' }}>
-            <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '1px solid #6E6EFF33', animation: 'none' }} />
-            <div style={{ position: 'absolute', inset: '8px', borderRadius: '50%', border: '2px solid #6E6EFF', background: 'radial-gradient(circle, #0F0F1A 60%, #0A0A2A)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Syne, sans-serif', fontSize: '52px', fontWeight: 700, color: '#6E6EFF' }}>VL</div>
-          </div>
+        <div style={{ width: '360px', height: '520px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+          {/* Portrait lineart — mural style */}
+          <svg viewBox="0 0 240 300" style={{ width: '240px', height: '300px', display: 'block' }}>
+            {/* bg */}
+            <rect width="240" height="300" fill="#050510" />
+            {/* corner marks */}
+            <path d="M2 14 L2 2 L14 2" stroke="#6E6EFF" strokeWidth="1" fill="none" opacity="0.7" />
+            <path d="M226 2 L238 2 L238 14" stroke="#6E6EFF" strokeWidth="1" fill="none" opacity="0.7" />
+            <path d="M2 286 L2 298 L14 298" stroke="#6E6EFF" strokeWidth="1" fill="none" opacity="0.7" />
+            <path d="M226 298 L238 298 L238 286" stroke="#6E6EFF" strokeWidth="1" fill="none" opacity="0.7" />
+            {/* hair silhouette left */}
+            <path d="M 87 76 Q 68 82 61 112 Q 55 142 57 172 Q 59 200 65 222 Q 71 240 80 252" stroke="#6E6EFF" strokeWidth="1.3" fill="none" opacity="0.55" strokeLinecap="round" />
+            <path d="M 80 90 Q 63 112 59 142 Q 56 166 58 188" stroke="#6E6EFF" strokeWidth="0.7" fill="none" opacity="0.35" />
+            <path d="M 91 80 Q 77 98 72 122 Q 68 146 69 168" stroke="#6E6EFF" strokeWidth="0.7" fill="none" opacity="0.35" />
+            {/* hair silhouette right */}
+            <path d="M 153 76 Q 172 82 179 112 Q 185 142 183 172 Q 181 200 175 222 Q 169 240 160 252" stroke="#6E6EFF" strokeWidth="1.3" fill="none" opacity="0.55" strokeLinecap="round" />
+            <path d="M 160 90 Q 177 112 181 142 Q 184 166 182 188" stroke="#6E6EFF" strokeWidth="0.7" fill="none" opacity="0.35" />
+            <path d="M 149 80 Q 163 98 168 122 Q 172 146 171 168" stroke="#6E6EFF" strokeWidth="0.7" fill="none" opacity="0.35" />
+            {/* hair top — middle part */}
+            <path d="M 88 78 Q 96 64 120 61 Q 144 64 152 78" stroke="#6E6EFF" strokeWidth="2.2" fill="none" strokeLinecap="round" />
+            <path d="M 120 61 L 120 82" stroke="#6E6EFF" strokeWidth="0.5" fill="none" opacity="0.3" />
+            {/* face outline */}
+            <path d="M 88 84 Q 79 98 77 118 Q 75 138 76 155 Q 77 173 82 185 Q 91 202 120 206 Q 149 202 158 185 Q 163 173 164 155 Q 165 138 163 118 Q 161 98 152 84" stroke="#F0F0F5" strokeWidth="1.9" fill="none" strokeLinejoin="round" />
+            {/* cheekbone shadow lines */}
+            <path d="M 78 152 Q 83 162 88 168" stroke="#8888AA" strokeWidth="0.7" fill="none" opacity="0.5" />
+            <path d="M 162 152 Q 157 162 152 168" stroke="#8888AA" strokeWidth="0.7" fill="none" opacity="0.5" />
+            {/* ears */}
+            <path d="M 76 130 Q 70 135 70 144 Q 70 152 76 156" stroke="#F0F0F5" strokeWidth="1.2" fill="none" />
+            <path d="M 164 130 Q 170 135 170 144 Q 170 152 164 156" stroke="#F0F0F5" strokeWidth="1.2" fill="none" />
+            {/* eyebrows — thick, expressive */}
+            <path d="M 80 114 Q 91 109 110 111" stroke="#F0F0F5" strokeWidth="3" fill="none" strokeLinecap="round" />
+            <path d="M 130 111 Q 149 109 160 114" stroke="#F0F0F5" strokeWidth="3" fill="none" strokeLinecap="round" />
+            {/* glasses left lens */}
+            <rect x="77" y="118" width="37" height="24" rx="3.5" stroke="#6E6EFF" strokeWidth="2.3" fill="#6E6EFF" fillOpacity="0.05" />
+            {/* glasses right lens */}
+            <rect x="126" y="118" width="37" height="24" rx="3.5" stroke="#6E6EFF" strokeWidth="2.3" fill="#6E6EFF" fillOpacity="0.05" />
+            {/* glasses bridge */}
+            <path d="M 114 129 Q 120 126 126 129" stroke="#6E6EFF" strokeWidth="1.8" fill="none" />
+            {/* glasses temples */}
+            <path d="M 77 129 Q 70 128 66 126" stroke="#6E6EFF" strokeWidth="1.5" fill="none" />
+            <path d="M 163 129 Q 170 128 174 126" stroke="#6E6EFF" strokeWidth="1.5" fill="none" />
+            {/* glasses top glint */}
+            <path d="M 78 119 Q 95.5 115 114 119" stroke="#8888AA" strokeWidth="0.6" fill="none" opacity="0.45" />
+            <path d="M 126 119 Q 144.5 115 163 119" stroke="#8888AA" strokeWidth="0.6" fill="none" opacity="0.45" />
+            {/* eyes */}
+            <ellipse cx="95.5" cy="131" rx="7" ry="5" stroke="#F0F0F5" strokeWidth="1" fill="none" />
+            <circle cx="95.5" cy="131" r="2.8" fill="#6E6EFF" opacity="0.9" />
+            <circle cx="97" cy="129.5" r="0.9" fill="#F0F0F5" opacity="0.65" />
+            <ellipse cx="144.5" cy="131" rx="7" ry="5" stroke="#F0F0F5" strokeWidth="1" fill="none" />
+            <circle cx="144.5" cy="131" r="2.8" fill="#6E6EFF" opacity="0.9" />
+            <circle cx="146" cy="129.5" r="0.9" fill="#F0F0F5" opacity="0.65" />
+            {/* nose */}
+            <path d="M 118 148 Q 114 159 111 165 Q 115 169 120 169 Q 125 169 129 165 Q 126 159 122 148" stroke="#8888AA" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+            <path d="M 111 165 Q 109 168 110 170" stroke="#8888AA" strokeWidth="0.8" fill="none" />
+            <path d="M 129 165 Q 131 168 130 170" stroke="#8888AA" strokeWidth="0.8" fill="none" />
+            {/* lips */}
+            <path d="M 107 179 Q 113 175 120 176 Q 127 175 133 179" stroke="#F0F0F5" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+            <path d="M 113 179 Q 120 176 127 179" stroke="#F0F0F5" strokeWidth="0.8" fill="none" />
+            <path d="M 107 179 Q 120 187 133 179" stroke="#F0F0F5" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+            {/* neck */}
+            <path d="M 109 206 L 110 232" stroke="#F0F0F5" strokeWidth="1.3" fill="none" />
+            <path d="M 131 206 L 130 232" stroke="#F0F0F5" strokeWidth="1.3" fill="none" />
+            {/* jacket — left side */}
+            <path d="M 110 232 Q 100 242 84 257 Q 62 272 38 286 Q 22 293 6 297" stroke="#8888AA" strokeWidth="1.7" fill="none" strokeLinecap="round" />
+            <path d="M 84 257 Q 66 270 48 282 Q 30 292 14 298" stroke="#44445A" strokeWidth="0.9" fill="none" opacity="0.55" />
+            {/* jacket — right side */}
+            <path d="M 130 232 Q 140 242 156 257 Q 178 272 202 286 Q 218 293 234 297" stroke="#8888AA" strokeWidth="1.7" fill="none" strokeLinecap="round" />
+            <path d="M 156 257 Q 174 270 192 282 Q 210 292 226 298" stroke="#44445A" strokeWidth="0.9" fill="none" opacity="0.55" />
+            {/* lapels */}
+            <path d="M 110 232 Q 115 243 120 250" stroke="#F0F0F5" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+            <path d="M 130 232 Q 125 243 120 250" stroke="#F0F0F5" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+            {/* shirt collar */}
+            <path d="M 113 232 Q 117 237 120 239 Q 123 237 127 232" stroke="#F0F0F5" strokeWidth="1" fill="none" />
+            {/* scan line accent */}
+            <line x1="0" y1="6" x2="240" y2="6" stroke="#6E6EFF" strokeWidth="0.35" opacity="0.18" />
+            <line x1="0" y1="294" x2="240" y2="294" stroke="#6E6EFF" strokeWidth="0.35" opacity="0.18" />
+          </svg>
           <div style={{ fontFamily: 'Syne, sans-serif', fontSize: '20px', fontWeight: 700, color: '#F0F0F5', letterSpacing: '0.2em', textAlign: 'center' }}>VITTORIA LANZO</div>
           <div style={{ width: '120px', height: '1px', background: 'linear-gradient(90deg, transparent, #6E6EFF, transparent)' }} />
           <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '13px', color: '#8888AA', letterSpacing: '0.15em', textAlign: 'center' }}>AI PROMPT ENGINEER</div>
