@@ -980,10 +980,28 @@ function EndOfStreetBuilding({ brickMap }: { brickMap: THREE.Texture }) {
       {/* Mural Html - identity panel — bigger */}
       <Html position={[0, 15, 4.12]} transform occlude={false} distanceFactor={28} style={{ pointerEvents: 'none' }}>
         <div style={{ width: '360px', height: '520px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '14px' }}>
-          {/* Outer ring */}
+          {/* Profile photo — neon-graded, circular */}
           <div style={{ position: 'relative', width: '180px', height: '180px' }}>
-            <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '1px solid #6E6EFF33', animation: 'none' }} />
-            <div style={{ position: 'absolute', inset: '8px', borderRadius: '50%', border: '2px solid #6E6EFF', background: 'radial-gradient(circle, #0F0F1A 60%, #0A0A2A)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Syne, sans-serif', fontSize: '52px', fontWeight: 700, color: '#6E6EFF' }}>VL</div>
+            {/* Outer ambient glow ring */}
+            <div style={{ position: 'absolute', inset: '-4px', borderRadius: '50%', background: 'radial-gradient(circle, transparent 48%, #6E6EFF22 70%, #00D4FF11 100%)', filter: 'blur(4px)' }} />
+            {/* Cyan outer ring */}
+            <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '1px solid #00D4FF55' }} />
+            {/* Violet inner ring */}
+            <div style={{ position: 'absolute', inset: '4px', borderRadius: '50%', border: '2px solid #6E6EFF', boxShadow: '0 0 12px #6E6EFF88, inset 0 0 8px #6E6EFF22' }}>
+              <img
+                src="/adapted_photo.png"
+                alt="Vittoria Lanzo"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  borderRadius: '50%',
+                  objectFit: 'cover',
+                  objectPosition: 'center top',
+                  display: 'block',
+                  filter: 'contrast(1.18) brightness(0.82) saturate(0.72)',
+                }}
+              />
+            </div>
           </div>
           <div style={{ fontFamily: 'Syne, sans-serif', fontSize: '20px', fontWeight: 700, color: '#F0F0F5', letterSpacing: '0.2em', textAlign: 'center' }}>VITTORIA LANZO</div>
           <div style={{ width: '120px', height: '1px', background: 'linear-gradient(90deg, transparent, #6E6EFF, transparent)' }} />
