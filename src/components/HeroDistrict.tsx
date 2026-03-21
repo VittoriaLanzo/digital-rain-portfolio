@@ -1,4 +1,9 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
+
+function scrollToProgress(p: number) {
+  const d = document.documentElement.scrollHeight - window.innerHeight;
+  window.scrollTo({ top: d * p, behavior: 'smooth' });
+}
 
 const roles = [
   'Product Designer & Frontend Engineer',
@@ -54,10 +59,6 @@ export default function HeroDistrict() {
     return () => clearInterval(interval);
   }, []);
 
-  const scrollDown = useCallback(() => {
-    window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
-  }, []);
-
   return (
     <section className="relative z-10 flex items-center justify-center min-h-screen px-4">
       {/* Decorative arc elements — partial circumference strokes */}
@@ -93,17 +94,17 @@ export default function HeroDistrict() {
 
         <div className="flex flex-col sm:flex-row gap-5 justify-center mt-16">
           <button
-            onClick={scrollDown}
+            onClick={() => scrollToProgress(0.46)}
             className="font-display text-[13px] font-medium tracking-[0.1em] uppercase text-foreground border border-border px-7 py-3 rounded-md hover:border-accent hover:text-accent transition-all duration-200"
           >
             View Work
           </button>
-          <a
-            href="#contact"
+          <button
+            onClick={() => scrollToProgress(0.93)}
             className="font-body text-[13px] tracking-wide text-text-secondary hover:text-foreground transition-colors duration-200"
           >
             Get in touch
-          </a>
+          </button>
         </div>
       </div>
     </section>
