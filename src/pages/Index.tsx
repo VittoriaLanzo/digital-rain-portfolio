@@ -3,15 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import CityScene from '@/components/CityScene';
 import CustomCursor from '@/components/CustomCursor';
 import HeroDistrict from '@/components/HeroDistrict';
-import { ABOUT, SKILLS, WORK } from '@/content/sections';
+import { ABOUT, SKILLS, WORK, LAB } from '@/content/sections';
 
 /* ─── Nav dot definitions ──────────────────────────────────────────────── */
 const NAV_DOTS = [
-  { label: 'Hero',    range: [0,    0.14] },
-  { label: 'About',   range: [0.15, 0.34] },
-  { label: 'Skills',  range: [0.35, 0.51] },
-  { label: 'Work',    range: [0.52, 0.69] },
-  { label: 'Contact', range: [0.70, 1.00] },
+  { label: 'Hero',    range: [0,    0.08] },
+  { label: 'About',   range: [0.09, 0.28] },
+  { label: 'Skills',  range: [0.29, 0.43] },
+  { label: 'Work',    range: [0.44, 0.58] },
+  { label: 'Lab',     range: [0.59, 0.74] },
+  { label: 'Contact', range: [0.75, 1.00] },
 ];
 
 /* ═══════════════════════════════════════
@@ -79,6 +80,7 @@ export default function Index() {
       <AboutPanel  visible={sp >= 0.09 && sp < 0.29} onEnter={() => navigate('/about')} />
       <SkillsPanel visible={sp >= 0.29 && sp < 0.44} onEnter={() => navigate('/skills')} />
       <WorkPanel   visible={sp >= 0.44 && sp < 0.59} onEnter={() => navigate('/work')} />
+      <LabPanel    visible={sp >= 0.59 && sp < 0.75} onEnter={() => navigate('/lab')} />
 
       {/* ─── Nav Dots ─── */}
       <NavDots sp={sp} onNavigate={scrollToProgress} />
@@ -101,7 +103,7 @@ export default function Index() {
       {/* ─── Scroll UX Indicators ─── */}
       <EntryScrollInvite visible={sp < 0.07} />
       <SectionAdvanceHint visible={sp >= 0.07 && sp < 0.09} label="About"   color="#6E6EFF" />
-      <SectionAdvanceHint visible={sp >= 0.60 && sp < 0.68} label="Lab"     color="#FF2D78" />
+      <SectionAdvanceHint visible={sp >= 0.56 && sp < 0.59} label="Lab"     color="#FF2D78" />
       <SectionAdvanceHint visible={sp >= 0.75 && sp < 0.82} label="Contact" color="#6E6EFF" />
       <ScrollHint         visible={sp >= 0.82 && sp < 0.93} />
       <BillboardFormOverlay visible={sp > 0.92} />
@@ -308,6 +310,21 @@ function WorkPanel({ visible, onEnter }: { visible: boolean; onEnter: () => void
   );
 }
 
+/* ─── Lab Panel ─── */
+function LabPanel({ visible, onEnter }: { visible: boolean; onEnter: () => void }) {
+  return (
+    <GlassPanel visible={visible} side="left" stallSide="right" color="#FF2D78" onEnter={onEnter}>
+      <SectionLabel label="Lab" color="#FF2D78" />
+      <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '26px', fontWeight: 700, color: '#F0F0F5', lineHeight: 1.2, marginBottom: '16px' }}>
+        {LAB.headline.split('\n').map((l, i) => <span key={i}>{l}{i === 0 && <br />}</span>)}
+      </h2>
+      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '14px', color: '#8888AA', lineHeight: 1.8 }}>
+        {LAB.tagline}
+      </p>
+    </GlassPanel>
+  );
+}
+
 /* ─── Nav Dots ─── */
 function NavDots({ sp, onNavigate }: { sp: number; onNavigate: (t: number) => void }) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
@@ -439,6 +456,7 @@ function SectionAdvanceHint({ visible, label, color }: { visible: boolean; label
 function BillboardFormOverlay({ visible }: { visible: boolean }) {
   const [form, setForm] = useState({ name: '', email: '', message: '' });
   const [sent, setSent] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -462,10 +480,16 @@ function BillboardFormOverlay({ visible }: { visible: boolean }) {
 
   return (
     <div style={{
-      position: 'fixed', bottom: '5vh', left: '50%',
-      transform: visible ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(40px)',
+      position: 'fixed', bottom: '4vh', left: '50%',
+      transform: visible ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(48px)',
       zIndex: 100, opacity: visible ? 1 : 0,
       pointerEvents: visible ? 'auto' : 'none',
+      transition: 'opacity 600ms cubic-bezier(0.16, 1, 0.3, 1), transform 600ms cubic-bezier(0.16, 1, 0.3, 1)',
+      width: '440px', maxWidth: '90vw', maxHeight: '88vh', overflowY: 'auto',
+      background: 'rgba(4,4,14,0.97)',
+      border: '1px solid rgba(0,212,255,0.15)', borderRadius: '14px', padding: '28px 32px',
+      boxShadow: '0 24px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.02), inset 0 1px 0 rgba(0,212,255,0.07)',
+      backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
       transition: 'opacity 500ms ease, transform 500ms ease',
       width: '460px', maxWidth: '92vw', maxHeight: '85vh', overflowY: 'auto',
       background: 'rgba(4,4,12,0.96)',
@@ -487,12 +511,16 @@ function BillboardFormOverlay({ visible }: { visible: boolean }) {
         onMouseLeave={e => { (e.target as HTMLElement).style.borderColor = '#1E1E2E'; }}
       >×</button>
 
-      <div style={{ position: 'relative', width: '72px', height: '72px', margin: '0 auto 12px', borderRadius: '50%', border: '1.5px solid rgba(0,212,255,0.45)', boxShadow: '0 0 14px rgba(0,212,255,0.12)', overflow: 'hidden', background: '#0A0A18', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ position: 'relative', width: '72px', height: '72px', margin: '0 auto 12px', borderRadius: '50%', border: '1.5px solid rgba(0,212,255,0.45)', boxShadow: '0 0 14px rgba(0,212,255,0.12)', overflow: 'hidden', background: '#0A0A18' }}>
+        {/* Fallback monogram — only visible while image hasn't loaded yet */}
+        {!imgLoaded && (
+          <span aria-hidden="true" style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Syne', sans-serif", fontSize: '18px', fontWeight: 700, color: 'rgba(0,212,255,0.5)', letterSpacing: '0.05em' }}>VL</span>
+        )}
         <img src="/adapted_photo.png" alt="Vittoria Lanzo"
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block', filter: 'contrast(1.18) brightness(0.82) saturate(0.72)' }}
+          onLoad={() => setImgLoaded(true)}
           onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
         />
-        <span aria-hidden="true" style={{ fontFamily: "'Syne', sans-serif", fontSize: '18px', fontWeight: 700, color: 'rgba(0,212,255,0.5)', letterSpacing: '0.05em', zIndex: 0 }}>VL</span>
       </div>
       <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: '16px', color: '#F0F0F5', textAlign: 'center', letterSpacing: '0.15em', marginBottom: '4px' }}>VITTORIA LANZO</div>
       <div style={{ fontSize: '11px', color: '#8888AA', textAlign: 'center', letterSpacing: '0.1em', marginBottom: '20px' }}>AI Systems Architect · Product Designer · Frontend Engineer</div>
