@@ -1466,17 +1466,6 @@ function NavigationStalls({ onStallClick }: { onStallClick: (id: string) => void
             </div>
           </Html>
 
-          {/* ── Invisible hit volume — full kiosk extent so any click on the stall body works ── */}
-          <mesh
-            position={[0, 1.165 * S, 0]}
-            onClick={(e) => { e.stopPropagation(); onStallClick(stall.id); }}
-            onPointerOver={(e) => { e.stopPropagation(); document.body.style.cursor = 'pointer'; }}
-            onPointerOut={(e) => { e.stopPropagation(); document.body.style.cursor = 'none'; }}
-          >
-            <boxGeometry args={[1.9 * S, 2.33 * S, 0.9 * S]} />
-            <meshBasicMaterial transparent opacity={0} depthWrite={false} />
-          </mesh>
-
           {/* ── Point lights ── */}
           <pointLight position={[0, 1.8 * S, 0.6]} color={stall.color} intensity={4} distance={10} decay={2} />
           <pointLight position={[0, 0.2, 0]} color={stall.color} intensity={1.5} distance={5} decay={2} />
