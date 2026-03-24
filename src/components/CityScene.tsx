@@ -1,5 +1,4 @@
 import { useRef, useMemo, useEffect, useState, useCallback, Suspense } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Canvas, useFrame, useThree, ThreeEvent } from '@react-three/fiber';
 import { Stars, Text, Html } from '@react-three/drei';
 import * as THREE from 'three';
@@ -176,18 +175,12 @@ function Building({ data, brickMap }: { data: BuildingData; brickMap: THREE.Text
   const groupRef = useRef<THREE.Group>(null);
   const antennaRef = useRef<THREE.Mesh>(null);
   const faceZ = side * (d / 2 + 0.01);
-
-  /* LOD is tracked in a ref — no React re-render on change */
-  const lodRef = useRef<0 | 1 | 2>(2);
-  const lodGroupFar  = useRef<THREE.Group>(null);
-  const lodGroupMid  = useRef<THREE.Group>(null);
-  const lodGroupFull = useRef<THREE.Group>(null);
+  const [lod, setLod] = useState<0 | 1 | 2>(2);
 
   // Rotation for planes on the road-facing X-face: face toward road
+  // roadFaceDir=+1 means face points +X → rotate plane -PI/2 around Y
+  // roadFaceDir=-1 means face points -X → rotate plane +PI/2 around Y
   const roadFaceRotY = -roadFaceDir * Math.PI / 2;
-
-  /* Mid LOD uses every-other road window */
-  const midRoadWindows = useMemo(() => roadWindows.filter((_, i) => i % 2 === 0), [roadWindows]);
 
   useFrame(({ camera, clock }) => {
     if (!groupRef.current) return;
@@ -195,13 +188,8 @@ function Building({ data, brickMap }: { data: BuildingData; brickMap: THREE.Text
     const dz = camera.position.z - pos[2];
     const dist = Math.sqrt(dx * dx + dz * dz);
     const newLod: 0 | 1 | 2 = dist < LOD_NEAR ? 0 : dist < LOD_MID ? 1 : 2;
-    if (newLod !== lodRef.current) {
-      lodRef.current = newLod;
-      if (lodGroupFar.current)  lodGroupFar.current.visible  = newLod === 2;
-      if (lodGroupMid.current)  lodGroupMid.current.visible  = newLod === 1;
-      if (lodGroupFull.current) lodGroupFull.current.visible = newLod === 0;
-    }
-    if (antennaRef.current && hasAntenna && lodRef.current === 0) {
+    if (newLod !== lod) setLod(newLod);
+    if (antennaRef.current && hasAntenna && lod === 0) {
       const intensity = 2 + Math.sin(clock.getElapsedTime() * 3) * 3;
       (antennaRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity = Math.max(0, intensity);
     }
@@ -222,15 +210,15 @@ function Building({ data, brickMap }: { data: BuildingData; brickMap: THREE.Text
   const totalWindows = windows.length + roadWindows.length;
   const litRatio = totalWindows > 0 ? litWindowCount / totalWindows : 0;
 
-  return (
-    <group ref={groupRef} position={pos}>
-
-      {/* ═══ FAR LOD — visible by default ═══ */}
-      <group ref={lodGroupFar}>
+  // ═══ FAR LOD ═══
+  if (lod === 2) {
+    return (
+      <group ref={groupRef} position={pos}>
         <mesh frustumCulled>
           <boxGeometry args={[w, h, d]} />
           <meshStandardMaterial map={brickMap} roughness={0.75} metalness={0.1} color="#CCDDCC" emissive="#00FF88" emissiveIntensity={litRatio * 0.2} />
         </mesh>
+        {/* Road-facing trim */}
         {trims.length > 0 && (
           <mesh position={[roadFaceX + roadFaceDir * 0.03, trims[0].y - h / 2, 0]} rotation={[0, roadFaceRotY, 0]}>
             <planeGeometry args={[d, 0.12]} />
@@ -238,9 +226,14 @@ function Building({ data, brickMap }: { data: BuildingData; brickMap: THREE.Text
           </mesh>
         )}
       </group>
+    );
+  }
 
-      {/* ═══ MID LOD ═══ */}
-      <group ref={lodGroupMid} visible={false}>
+  // ═══ MID LOD ═══
+  if (lod === 1) {
+    const midRoadWindows = roadWindows.filter((_, i) => i % 2 === 0);
+    return (
+      <group ref={groupRef} position={pos}>
         <mesh frustumCulled>
           <boxGeometry args={[w, h, d]} />
           <meshStandardMaterial map={brickMap} roughness={0.75} metalness={0.1} color="#CCDDCC" emissive="#001A00" emissiveIntensity={0.4} />
@@ -249,12 +242,14 @@ function Building({ data, brickMap }: { data: BuildingData; brickMap: THREE.Text
           <boxGeometry args={[w + 0.2, 0.3, d + 0.2]} />
           <meshStandardMaterial color="#333333" roughness={0.5} metalness={0.6} />
         </mesh>
+        {/* Road-facing trims */}
         {trims.map((trim, i) => (
           <mesh key={`rt${i}`} position={[roadFaceX + roadFaceDir * 0.03, trim.y - h / 2, 0]} rotation={[0, roadFaceRotY, 0]}>
             <planeGeometry args={[d, 0.12]} />
             <meshStandardMaterial color="#000" emissive={trim.color} emissiveIntensity={4} side={THREE.DoubleSide} />
           </mesh>
         ))}
+        {/* Road-facing windows */}
         {midRoadWindows.map((win, i) => (
           <mesh key={`rw${i}`} position={[roadFaceX + roadFaceDir * 0.02, win.y, win.z]} rotation={[0, roadFaceRotY, 0]}>
             <planeGeometry args={[0.55, 0.75]} />
@@ -267,6 +262,7 @@ function Building({ data, brickMap }: { data: BuildingData; brickMap: THREE.Text
             />
           </mesh>
         ))}
+        {/* Z-face trims */}
         {trims.map((trim, i) => (
           <mesh key={`t${i}`} position={[0, trim.y - h / 2, side * (d / 2 + 0.04)]}>
             <boxGeometry args={[w, 0.12, 0.08]} />
@@ -278,9 +274,12 @@ function Building({ data, brickMap }: { data: BuildingData; brickMap: THREE.Text
           <meshStandardMaterial color="#181820" metalness={0.7} roughness={0.5} />
         </mesh>
       </group>
+    );
+  }
 
-      {/* ═══ FULL LOD ═══ */}
-      <group ref={lodGroupFull} visible={false}>
+  // ═══ FULL LOD ═══
+  return (
+    <group ref={groupRef} position={pos}>
       <mesh frustumCulled>
         <boxGeometry args={[w, h, d]} />
         <meshStandardMaterial map={brickMap} roughness={0.75} metalness={0.1} color="#CCDDCC" emissive="#001A00" emissiveIntensity={0.4} />
@@ -481,13 +480,12 @@ function Building({ data, brickMap }: { data: BuildingData; brickMap: THREE.Text
           </mesh>
         </group>
       )}
-      </group>{/* lodGroupFull */}
     </group>
   );
 }
 
 /* ─── Final Refined Victorian Street Lamp ─── */
-function StreetLamp({ position, side, isMobile }: { position: [number, number, number]; side: number; isMobile: boolean }) {
+function StreetLamp({ position, side }: { position: [number, number, number]; side: number }) {
   const lampColor = "#050505";
   const lightColor = "#ffbb55";
   const lanternX = side * -1.2;
@@ -542,8 +540,8 @@ function StreetLamp({ position, side, isMobile }: { position: [number, number, n
           <meshStandardMaterial color={lampColor} />
         </mesh>
 
-        {/* 4. LIGHTING: disabled on mobile to cut simultaneous light count */}
-        {!isMobile && <pointLight intensity={80} distance={15} color={lightColor} decay={2} />}
+        {/* 4. LIGHTING: One PointLight for the glow, one SpotLight for the wall shading */}
+        <pointLight intensity={80} distance={15} color={lightColor} decay={2} />
       </group>
 
       {/* 5. GROUND LIGHT GRADIENT */}
@@ -981,46 +979,16 @@ function EndOfStreetBuilding({ brickMap }: { brickMap: THREE.Texture }) {
       ))}
       {/* Mural Html - identity panel — bigger */}
       <Html position={[0, 15, 4.12]} transform occlude={false} distanceFactor={28} style={{ pointerEvents: 'none' }}>
-        <div style={{ position: 'relative', width: '360px', height: '520px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '14px' }}>
-          {/* Decorative arc elements — partial circumference strokes */}
-          <svg aria-hidden="true" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', overflow: 'hidden' }} viewBox="0 0 360 520">
-            {/* Arc 1 — large, top-right, ~1/4 arc (r=160, circ≈1005) */}
-            <circle cx="360" cy="80" r="160" stroke="#00D4FF" strokeWidth="1.2" fill="none"
-              strokeDasharray="251 754" strokeDashoffset="-100" opacity="0.25" />
-            {/* Arc 2 — medium, bottom-left, ~1/3 arc (r=110, circ≈691) */}
-            <circle cx="20" cy="480" r="110" stroke="#00D4FF" strokeWidth="1.5" fill="none"
-              strokeDasharray="230 461" strokeDashoffset="60" opacity="0.22" />
-            {/* Arc 3 — small, center-right, ~1/4 arc (r=70, circ≈440) */}
-            <circle cx="340" cy="280" r="70" stroke="#00D4FF" strokeWidth="0.8" fill="none"
-              strokeDasharray="110 330" strokeDashoffset="-20" opacity="0.16" />
-          </svg>
-          {/* Profile photo — neon-graded, circular */}
+        <div style={{ width: '360px', height: '520px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '14px' }}>
+          {/* Outer ring */}
           <div style={{ position: 'relative', width: '180px', height: '180px' }}>
-            {/* Outer ambient glow ring */}
-            <div style={{ position: 'absolute', inset: '-4px', borderRadius: '50%', background: 'radial-gradient(circle, transparent 48%, #6E6EFF22 70%, #00D4FF11 100%)', filter: 'blur(4px)' }} />
-            {/* Cyan outer ring */}
-            <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '1px solid #00D4FF55' }} />
-            {/* Violet inner ring */}
-            <div style={{ position: 'absolute', inset: '4px', borderRadius: '50%', border: '2px solid #6E6EFF', boxShadow: '0 0 12px #6E6EFF88, inset 0 0 8px #6E6EFF22' }}>
-              <img
-                src="/adapted_photo.png"
-                alt="Vittoria Lanzo"
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  borderRadius: '50%',
-                  objectFit: 'cover',
-                  objectPosition: 'center top',
-                  display: 'block',
-                  filter: 'contrast(1.18) brightness(0.82) saturate(0.72)',
-                }}
-              />
-            </div>
+            <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '1px solid #6E6EFF33', animation: 'none' }} />
+            <div style={{ position: 'absolute', inset: '8px', borderRadius: '50%', border: '2px solid #6E6EFF', background: 'radial-gradient(circle, #0F0F1A 60%, #0A0A2A)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Syne, sans-serif', fontSize: '52px', fontWeight: 700, color: '#6E6EFF' }}>VL</div>
           </div>
           <div style={{ fontFamily: 'Syne, sans-serif', fontSize: '20px', fontWeight: 700, color: '#F0F0F5', letterSpacing: '0.2em', textAlign: 'center' }}>VITTORIA LANZO</div>
           <div style={{ width: '120px', height: '1px', background: 'linear-gradient(90deg, transparent, #6E6EFF, transparent)' }} />
-          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '13px', color: '#8888AA', letterSpacing: '0.15em', textAlign: 'center' }}>AI SYSTEMS ARCHITECT</div>
-          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '11px', color: '#44445A', letterSpacing: '0.1em', textAlign: 'center' }}>PRODUCT DESIGNER · FRONTEND ENGINEER</div>
+          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '13px', color: '#8888AA', letterSpacing: '0.15em', textAlign: 'center' }}>AI PROMPT ENGINEER</div>
+          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '11px', color: '#44445A', letterSpacing: '0.1em', textAlign: 'center' }}>AGENTIC SYSTEMS DESIGNER</div>
         </div>
       </Html>
       {/* Neon front strip */}
@@ -1164,7 +1132,7 @@ function RainParticles({ count = 800 }: { count?: number }) {
 /* ─── Floating Dust ─── */
 function FloatingDust() {
   const ref = useRef<THREE.InstancedMesh>(null);
-  const count = 60;
+  const count = 200;
   const speeds = useMemo(() => Array.from({ length: count }, () => 0.005 + Math.random() * 0.015), []);
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
@@ -1205,60 +1173,33 @@ function FloatingDust() {
 /* ─── Camera Controller ─── */
 function CameraController({ scrollProgress }: { scrollProgress: number }) {
   const { camera } = useThree();
-  // Cache scrollable height — only changes on window resize, not on every frame.
-  // scrollHeight is a layout-flush property; reading it at 60fps wastes CPU.
-  // window.scrollY is a simple cached read and is safe to call every frame.
-  const docHeightRef = useRef(
-    typeof window !== 'undefined'
-      ? document.documentElement.scrollHeight - window.innerHeight
-      : 0
-  );
-  // Smooth look-at target, lerped each frame
-  const lookAtRef = useRef(new THREE.Vector3(0, 3, 10));
-
-  useEffect(() => {
-    const update = () => {
-      docHeightRef.current = document.documentElement.scrollHeight - window.innerHeight;
-    };
-    window.addEventListener('resize', update);
-    return () => window.removeEventListener('resize', update);
-  }, []);
-
   useFrame(() => {
-    const t = docHeightRef.current > 0
-      ? Math.min(window.scrollY / docHeightRef.current, 1)
-      : scrollProgress;
-
-    let targetZ: number, targetY: number;
-    const targetLookAt = new THREE.Vector3();
+    const t = scrollProgress;
     let z: number, y: number;
 
     if (t <= 0.80) {
-      targetZ = THREE.MathUtils.lerp(30, -155, t / 0.80);
-      targetY = 3;
-      targetLookAt.set(0, 3, targetZ - 20);
+      z = THREE.MathUtils.lerp(30, -155, t / 0.80);
+      y = 3;
+      camera.position.set(0, y, z);
+      camera.lookAt(0, 3, z - 20);
     } else {
       const sub = (t - 0.80) / 0.20;
       if (sub < 0.5) {
+        // Phase 1: approach the building
         const s = sub * 2;
-        targetZ = THREE.MathUtils.lerp(-155, -200, s);
-        targetY = THREE.MathUtils.lerp(3, 12, s);
-        targetLookAt.set(0, 15, -215);
+        z = THREE.MathUtils.lerp(-155, -200, s);
+        y = THREE.MathUtils.lerp(3, 12, s);
+        camera.position.set(0, y, z);
+        camera.lookAt(0, 15, -215);
       } else {
+        // Phase 2: rise above the rooftop (y=30.25)
         const s = (sub - 0.5) * 2;
-        targetZ = THREE.MathUtils.lerp(-200, -195, s);
-        targetY = THREE.MathUtils.lerp(12, 38, s);
-        targetLookAt.set(0, THREE.MathUtils.lerp(15, 32, s), -215);
+        z = THREE.MathUtils.lerp(-200, -195, s);
+        y = THREE.MathUtils.lerp(12, 38, s);
+        camera.position.set(0, y, z);
+        camera.lookAt(0, THREE.MathUtils.lerp(15, 32, s), -215);
       }
     }
-
-    // Smooth cinematic damping — 0.09 per frame ≈ very responsive but no hard snap
-    const lf = 0.09;
-    camera.position.x = THREE.MathUtils.lerp(camera.position.x, 0, lf);
-    camera.position.y = THREE.MathUtils.lerp(camera.position.y, targetY, lf);
-    camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ, lf);
-    lookAtRef.current.lerp(targetLookAt, lf);
-    camera.lookAt(lookAtRef.current);
   });
   return null;
 }
@@ -1480,7 +1421,6 @@ function NavigationStalls({ onStallClick }: { onStallClick: (id: string) => void
 
 /* ─── Street Props ─── */
 function StreetProps({ isMobile }: { isMobile: boolean }) {
-  const navigate = useNavigate();
   const props = useMemo(() => {
     const trashCans: { pos: [number, number, number]; tipped: boolean }[] = [];
     let trashSide = 1;
@@ -1606,7 +1546,7 @@ function StreetProps({ isMobile }: { isMobile: boolean }) {
           <mesh
             position={mh}
             rotation={[-Math.PI / 2, 0, 0]}
-            onClick={i === 0 ? (e: ThreeEvent<MouseEvent>) => { e.stopPropagation(); navigate('/privacy'); } : undefined}
+            onClick={i === 0 ? (e: ThreeEvent<MouseEvent>) => { e.stopPropagation(); window.location.href = '/privacy'; } : undefined}
             onPointerOver={i === 0 ? () => { document.body.style.cursor = 'pointer'; } : undefined}
             onPointerOut={i === 0 ? () => { document.body.style.cursor = ''; } : undefined}
           >
@@ -1688,7 +1628,7 @@ function StreetProps({ isMobile }: { isMobile: boolean }) {
 function SteamVents() {
   const ventsRef = useRef<THREE.InstancedMesh>(null);
   const ventCount = 4;
-  const particlesPerVent = 15;
+  const particlesPerVent = 50;
   const totalParticles = ventCount * particlesPerVent;
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
@@ -1750,18 +1690,18 @@ function SteamVents() {
 /* ─── Overhead Cables ─── */
 function OverheadCables() {
   const cables = useMemo(() => {
-    const result: { curve: THREE.CatmullRomCurve3 }[] = [];
+    const result: { points: THREE.Vector3[] }[] = [];
     for (let z = 10; z > -180; z -= 30) {
       const leftX = -(12 + Math.random() * 3);
       const rightX = 12 + Math.random() * 3;
       const y = 12 + Math.random() * 8;
       const droopY = y - 1.5 - Math.random() * 2;
       result.push({
-        curve: new THREE.CatmullRomCurve3([
+        points: [
           new THREE.Vector3(leftX, y, z),
           new THREE.Vector3(0, droopY, z),
           new THREE.Vector3(rightX, y, z),
-        ]),
+        ],
       });
     }
     return result;
@@ -1769,12 +1709,15 @@ function OverheadCables() {
 
   return (
     <>
-      {cables.map((cable, i) => (
-        <mesh key={`cable${i}`}>
-          <tubeGeometry args={[cable.curve, 20, 0.015, 4, false]} />
-          <meshStandardMaterial color="#0A0A0A" metalness={0.9} roughness={0.3} />
-        </mesh>
-      ))}
+      {cables.map((cable, i) => {
+        const curve = new THREE.CatmullRomCurve3(cable.points);
+        return (
+          <mesh key={`cable${i}`}>
+            <tubeGeometry args={[curve, 20, 0.015, 4, false]} />
+            <meshStandardMaterial color="#0A0A0A" metalness={0.9} roughness={0.3} />
+          </mesh>
+        );
+      })}
     </>
   );
 }
@@ -1947,7 +1890,7 @@ function CityEnvironment({ onStallClick }: { onStallClick: (id: string) => void 
       ))}
 
       {streetLamps.map((l, i) => (
-        <StreetLamp key={`lamp-${i}`} position={l.pos} side={l.side} isMobile={isMobile} />
+        <StreetLamp key={`lamp-${i}`} position={l.pos} side={l.side} />
       ))}
 
       {neonAccents.map((a, i) => (
@@ -1977,7 +1920,7 @@ function CityEnvironment({ onStallClick }: { onStallClick: (id: string) => void 
       {!isMobile && <OverheadCables />}
       {!isMobile && <BackgroundBuildings />}
 
-      <RainParticles count={isMobile ? 40 : 120} />
+      <RainParticles count={isMobile ? 40 : 300} />
       {!isMobile && <FloatingDust />}
       <Stars radius={200} depth={60} count={isMobile ? 400 : 1200} factor={4} saturation={0} />
       <CityGlowDome />
@@ -1992,8 +1935,11 @@ function CityEnvironment({ onStallClick }: { onStallClick: (id: string) => void 
       <directionalLight position={[5, 20, 10]} color="#00FF88" intensity={1.5} />
       <pointLight position={[0, 5, -100]} color={NEON_CYAN} intensity={4} distance={25} decay={2} />
 
-      {/* Street-level fill: single directional replaces 4 point lights */}
-      <directionalLight position={[0, 10, -90]} color="#FFFFFF" intensity={1.2} />
+      {/* Street-level fill lights for road-facing facades */}
+      <pointLight position={[0, 10, 0]} color="#FFFFFF" intensity={1.2} distance={50} decay={2} />
+      <pointLight position={[0, 10, -60]} color="#FFFFFF" intensity={1.2} distance={50} decay={2} />
+      <pointLight position={[0, 10, -120]} color="#FFFFFF" intensity={1.2} distance={50} decay={2} />
+      <pointLight position={[0, 10, -180]} color="#FFFFFF" intensity={1.2} distance={50} decay={2} />
     </>
   );
 }
