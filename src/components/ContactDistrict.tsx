@@ -62,6 +62,11 @@ export default function ContactDistrict({ visible }: { visible: boolean }) {
             />
           </div>
 
+          <p className="font-body text-xs text-muted-foreground mt-1">
+            By sending this message your email address will be processed to respond to your inquiry
+            under Art. 6(1)(f) GDPR (legitimate interest). See the{' '}
+            <a href="/privacy" className="underline hover:text-foreground transition-colors">Privacy Policy</a>.
+          </p>
           <button
             type="submit"
             className="font-display text-sm font-medium tracking-[0.05em] bg-accent text-white border-none rounded-md px-8 py-3.5 hover:bg-secondary hover:-translate-y-px transition-all duration-200"

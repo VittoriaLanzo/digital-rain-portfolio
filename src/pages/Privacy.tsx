@@ -103,7 +103,7 @@ export default function Privacy() {
           <p style={body}>
             The data controller for any personal data processed in connection with this Site is:<br />
             <strong style={{ color: '#F0F0F5' }}>Vittoria Lanzo</strong><br />
-            Email: <ContactLink label="lanzo [dot] vittoria [at] gmail [dot] com" />
+            Email: <ContactLink label="lanzo.vittoria@gmail.com" />
           </p>
           <p style={body}>
             As a natural person operating a personal portfolio site with no large-scale or
@@ -213,9 +213,12 @@ export default function Privacy() {
           {/* ── 8. Children ── */}
           <h2 style={heading}>8. Children's Privacy</h2>
           <p style={body}>
-            This Site is not directed at children under 16. I do not knowingly process personal
-            data from children. If you believe a child has sent me personal data without
-            appropriate consent, please contact me so that I can delete it without delay.
+            This Site is not directed at children under the age of 14 (the minimum age for
+            consent to personal data processing in the digital context under Italian law,
+            pursuant to Legislative Decree 101/2018, Art. 2-quinquies). I do not knowingly
+            process personal data from children. If you believe a child has sent me personal
+            data without appropriate parental consent, please contact me so that I can delete
+            it without delay.
           </p>
 
           {/* ── 9. Supervisory Authority ── */}
@@ -253,7 +256,7 @@ export default function Privacy() {
           <p style={body}>
             For any privacy-related questions or to exercise your data subject rights:<br />
             <strong style={{ color: '#F0F0F5' }}>Vittoria Lanzo</strong><br />
-            Email: <ContactLink label="lanzo [dot] vittoria [at] gmail [dot] com" />
+            Email: <ContactLink label="lanzo.vittoria@gmail.com" />
           </p>
 
           <div style={{ height: '1px', background: '#1E1E2E', margin: '32px 0 20px' }} />

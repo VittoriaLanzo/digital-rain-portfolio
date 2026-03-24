@@ -532,6 +532,10 @@ function BillboardFormOverlay({ visible }: { visible: boolean }) {
         <input type="text" placeholder="Your name" value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} style={inputStyle} onFocus={e => { e.target.style.borderColor = '#00D4FF'; }} onBlur={e => { e.target.style.borderColor = '#1E1E2E'; }} />
         <input type="email" placeholder="you@example.com" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} style={inputStyle} onFocus={e => { e.target.style.borderColor = '#00D4FF'; }} onBlur={e => { e.target.style.borderColor = '#1E1E2E'; }} />
         <textarea placeholder="Describe your vision..." value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))} style={{ ...inputStyle, height: '90px', resize: 'none' }} onFocus={e => { e.target.style.borderColor = '#00D4FF'; }} onBlur={e => { e.target.style.borderColor = '#1E1E2E'; }} />
+        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '10px', color: '#44445A', lineHeight: 1.6, margin: '4px 0' }}>
+          Your email will be processed to respond to your inquiry under Art. 6(1)(f) GDPR.{' '}
+          <a href="/privacy" style={{ color: '#6E6EFF', textDecoration: 'none' }}>Privacy Policy</a>.
+        </p>
         <button type="submit" disabled={sent} style={{ width: '100%', background: '#00D4FF', color: '#050512', border: 'none', borderRadius: '6px', fontFamily: "'Syne', sans-serif", fontSize: '13px', fontWeight: 600, letterSpacing: '0.05em', padding: '13px', cursor: sent ? 'default' : 'pointer', opacity: sent ? 0.75 : 1, marginTop: '4px', transition: 'opacity 200ms' }}
           onMouseEnter={e => { if (!sent) (e.target as HTMLElement).style.background = '#33DDFF'; }}
           onMouseLeave={e => { if (!sent) (e.target as HTMLElement).style.background = '#00D4FF'; }}
