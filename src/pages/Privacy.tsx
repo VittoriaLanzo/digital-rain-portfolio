@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 
-const LAST_UPDATED = 'March 20, 2026';
+const LAST_UPDATED = 'March 24, 2026';
 
 // Bot-safe email: assembled at interaction time, never a complete string in source
 function ContactLink({ label }: { label?: string }) {
@@ -85,157 +85,173 @@ export default function Privacy() {
 
           {/* ── Introduction ── */}
           <p style={body}>
-            This Privacy Policy explains how Vittoria Lanzo ("I", "me", "my") collects, uses,
-            and protects your personal data when you visit this website (the "Site"). This policy
-            is designed to comply with the EU General Data Protection Regulation (GDPR – Regulation
-            (EU) 2016/679), the ePrivacy Directive (2002/58/EC), and any applicable national
-            implementing legislation.
+            This Privacy Policy describes how Vittoria Lanzo ("I", "me", "my") handles
+            personal data in connection with this website (the "Site"). It is written to
+            comply with the EU General Data Protection Regulation (GDPR — Regulation (EU)
+            2016/679), the ePrivacy Directive (2002/58/EC as amended), and applicable Italian
+            national law.
           </p>
           <p style={body}>
-            By using this Site, you acknowledge that you have read and understood this Privacy Policy.
-            If you do not agree, please refrain from using the Site.
+            This Site is a <strong style={{ color: '#F0F0F5' }}>static personal portfolio</strong>.
+            It does not operate a backend server, does not run analytics software, and does not
+            set cookies. The processing described below is therefore limited to what the hosting
+            infrastructure unavoidably handles, and to any direct contact initiated by you.
           </p>
 
           {/* ── 1. Data Controller ── */}
           <h2 style={heading}>1. Data Controller</h2>
           <p style={body}>
-            The data controller responsible for processing your personal data is:<br />
+            The data controller for any personal data processed in connection with this Site is:<br />
             <strong style={{ color: '#F0F0F5' }}>Vittoria Lanzo</strong><br />
             Email: <ContactLink label="lanzo [dot] vittoria [at] gmail [dot] com" />
           </p>
           <p style={body}>
-            You may contact me at any time regarding questions about this policy or your data rights.
+            As a natural person operating a personal portfolio site with no large-scale or
+            systematic processing, I am not required to appoint a Data Protection Officer
+            (DPO) under Art. 37 GDPR.
           </p>
 
-          {/* ── 2. Data We Collect ── */}
-          <h2 style={heading}>2. Personal Data We Collect</h2>
-          <p style={body}>I may collect the following categories of personal data:</p>
-          <ul style={list}>
-            <li><strong style={{ color: '#B0B0CC' }}>Contact form data:</strong> name, email address, and message content — provided voluntarily when you use the contact form.</li>
-            <li><strong style={{ color: '#B0B0CC' }}>Technical data:</strong> IP address (anonymized), browser type and version, operating system, referral source, pages visited, time and date of visit, and time spent on pages — collected automatically through server logs and analytics.</li>
-            <li><strong style={{ color: '#B0B0CC' }}>Cookies and similar technologies:</strong> see Section 7 below.</li>
-          </ul>
+          {/* ── 2. Personal Data Processed ── */}
+          <h2 style={heading}>2. Personal Data Processed</h2>
+
+          <p style={{ ...body, color: '#B0B0CC', fontWeight: 600, marginBottom: '8px' }}>
+            2a. Hosting infrastructure — server access logs
+          </p>
           <p style={body}>
-            I do <strong style={{ color: '#F0F0F5' }}>not</strong> collect special categories of personal data (e.g. health data, political opinions, biometric data).
+            When you visit this Site, the hosting provider's servers automatically record
+            standard HTTP access log data: your IP address, browser type and version,
+            operating system, referring URL, pages requested, timestamps, and HTTP status
+            codes. This is an inherent function of all web hosting and is not under my
+            direct control.
           </p>
-
-          {/* ── 3. Legal Basis ── */}
-          <h2 style={heading}>3. Legal Basis for Processing (Art. 6 GDPR)</h2>
-          <p style={body}>I process your personal data on the following legal bases:</p>
           <ul style={list}>
-            <li><strong style={{ color: '#B0B0CC' }}>Consent (Art. 6(1)(a)):</strong> When you submit the contact form or accept optional cookies, you provide explicit consent.</li>
-            <li><strong style={{ color: '#B0B0CC' }}>Legitimate interest (Art. 6(1)(f)):</strong> For website security, fraud prevention, and anonymous analytics to improve the Site.</li>
-            <li><strong style={{ color: '#B0B0CC' }}>Contractual necessity (Art. 6(1)(b)):</strong> When processing is necessary to respond to your inquiry.</li>
-          </ul>
-
-          {/* ── 4. Purpose ── */}
-          <h2 style={heading}>4. Purpose of Data Processing</h2>
-          <p style={body}>Your data is processed for the following purposes:</p>
-          <ul style={list}>
-            <li>To respond to your contact form submissions</li>
-            <li>To ensure the technical functionality and security of the Site</li>
-            <li>To analyze anonymized usage statistics for improving user experience</li>
-            <li>To comply with legal obligations</li>
+            <li><strong style={{ color: '#B0B0CC' }}>Legal basis:</strong> Legitimate interest (Art. 6(1)(f) GDPR) — ensuring the secure and reliable delivery of the Site. This interest is not overridden by your rights, as the processing is minimal, technically necessary, and you initiate contact by visiting the Site.</li>
+            <li><strong style={{ color: '#B0B0CC' }}>Retention:</strong> Determined by the hosting provider's own policy; I do not have individual access to these logs.</li>
+            <li><strong style={{ color: '#B0B0CC' }}>Processor:</strong> The hosting provider acts as a data processor under Art. 28 GDPR. Contact me to identify the provider currently in use.</li>
           </ul>
 
-          {/* ── 5. Data Retention ── */}
-          <h2 style={heading}>5. Data Retention</h2>
-          <p style={body}>
-            Contact form submissions are retained for a maximum of <strong style={{ color: '#F0F0F5' }}>12 months</strong> after the last interaction,
-            unless a longer retention period is required by law. Server logs and anonymized analytics
-            data are retained for up to <strong style={{ color: '#F0F0F5' }}>26 months</strong>.
+          <p style={{ ...body, color: '#B0B0CC', fontWeight: 600, marginBottom: '8px' }}>
+            2b. Direct email contact
           </p>
           <p style={body}>
-            When data is no longer needed for the purposes for which it was collected, it is
-            securely deleted or anonymized.
-          </p>
-
-          {/* ── 6. Data Sharing ── */}
-          <h2 style={heading}>6. Data Sharing and Third-Party Processors</h2>
-          <p style={body}>
-            I do not sell, rent, or trade your personal data. Data may be shared with the following
-            categories of processors, all of which are bound by data processing agreements (DPAs):
+            If you contact me at the email address above, I will process your email address,
+            name (if provided), and the content of your message, solely to respond to your inquiry.
           </p>
           <ul style={list}>
-            <li><strong style={{ color: '#B0B0CC' }}>Hosting provider:</strong> for website hosting and server infrastructure (EU-based or with adequate safeguards per Chapter V GDPR).</li>
-            <li><strong style={{ color: '#B0B0CC' }}>Email service provider:</strong> for handling contact form submissions.</li>
-            <li><strong style={{ color: '#B0B0CC' }}>Analytics provider:</strong> for anonymized traffic analysis (configured to not store personal data or IP addresses).</li>
+            <li><strong style={{ color: '#B0B0CC' }}>Legal basis:</strong> Legitimate interest (Art. 6(1)(f) GDPR) — responding to communications you have directed to me. You retain the right to object at any time (see Section 5).</li>
+            <li><strong style={{ color: '#B0B0CC' }}>Retention:</strong> Retained for as long as necessary to handle the inquiry, and for a reasonable period thereafter not exceeding 12 months from the last exchange, unless a longer period is required by law.</li>
           </ul>
-          <p style={body}>
-            If data is transferred outside the EEA, I ensure appropriate safeguards are in place,
-            such as Standard Contractual Clauses (SCCs) approved by the European Commission, or
-            an adequacy decision under Art. 45 GDPR.
-          </p>
 
-          {/* ── 7. Cookies ── */}
-          <h2 style={heading}>7. Cookies and Tracking Technologies</h2>
-          <p style={body}>This Site uses the following categories of cookies:</p>
+          {/* ── 3. What This Site Does Not Do ── */}
+          <h2 style={heading}>3. What This Site Does Not Do</h2>
           <ul style={list}>
-            <li><strong style={{ color: '#B0B0CC' }}>Strictly necessary cookies:</strong> Required for the Site to function. No consent required (Art. 5(3) ePrivacy Directive).</li>
-            <li><strong style={{ color: '#B0B0CC' }}>Analytics cookies (optional):</strong> Used to collect anonymized usage data. Only placed after obtaining your explicit consent via the cookie banner.</li>
+            <li>Does <strong style={{ color: '#F0F0F5' }}>not</strong> use web analytics tools (e.g. Google Analytics, Plausible, Matomo, or equivalent).</li>
+            <li>Does <strong style={{ color: '#F0F0F5' }}>not</strong> set first-party cookies or use local storage for tracking or profiling.</li>
+            <li>Does <strong style={{ color: '#F0F0F5' }}>not</strong> transmit contact form submissions to any server — the contact form is a presentational UI element and sends no data over the network.</li>
+            <li>Does <strong style={{ color: '#F0F0F5' }}>not</strong> share, sell, rent, or trade personal data with third parties for marketing or commercial purposes.</li>
+            <li>Does <strong style={{ color: '#F0F0F5' }}>not</strong> process special categories of personal data (Art. 9 GDPR) or data relating to criminal convictions (Art. 10 GDPR).</li>
+            <li>Does <strong style={{ color: '#F0F0F5' }}>not</strong> engage in automated decision-making or profiling with legal or similarly significant effects (Art. 22 GDPR).</li>
           </ul>
+
+          {/* ── 4. Cookies ── */}
+          <h2 style={heading}>4. Cookies and Tracking</h2>
           <p style={body}>
-            You can withdraw your cookie consent at any time by clearing cookies in your browser
-            settings or contacting me directly. You may also configure your browser to refuse
-            cookies entirely.
+            This Site does not set first-party cookies. The hosting provider may set a
+            technically necessary session or load-balancing cookie as part of serving the
+            Site; such cookies do not identify you personally, expire at the end of your
+            session or shortly after, and do not require consent under Art. 5(3) of the
+            ePrivacy Directive. No third-party tracking, advertising, or analytics cookies
+            are present.
           </p>
 
-          {/* ── 8. Your Rights ── */}
-          <h2 style={heading}>8. Your Rights Under GDPR</h2>
-          <p style={body}>Under the GDPR, you have the following rights regarding your personal data:</p>
+          {/* ── 5. Your Rights ── */}
+          <h2 style={heading}>5. Your Rights Under GDPR</h2>
+          <p style={body}>
+            Where I process your personal data, you hold the following rights under
+            Chapter III GDPR:
+          </p>
           <ul style={list}>
-            <li><strong style={{ color: '#B0B0CC' }}>Right of access (Art. 15):</strong> Obtain confirmation of whether your data is being processed and request a copy.</li>
-            <li><strong style={{ color: '#B0B0CC' }}>Right to rectification (Art. 16):</strong> Request correction of inaccurate data.</li>
-            <li><strong style={{ color: '#B0B0CC' }}>Right to erasure (Art. 17):</strong> Request deletion of your personal data ("right to be forgotten").</li>
-            <li><strong style={{ color: '#B0B0CC' }}>Right to restrict processing (Art. 18):</strong> Request that processing be limited under certain conditions.</li>
-            <li><strong style={{ color: '#B0B0CC' }}>Right to data portability (Art. 20):</strong> Receive your data in a structured, commonly used, machine-readable format.</li>
-            <li><strong style={{ color: '#B0B0CC' }}>Right to object (Art. 21):</strong> Object to processing based on legitimate interest at any time.</li>
-            <li><strong style={{ color: '#B0B0CC' }}>Right to withdraw consent (Art. 7(3)):</strong> Withdraw consent at any time, without affecting the lawfulness of prior processing.</li>
+            <li><strong style={{ color: '#B0B0CC' }}>Right of access (Art. 15):</strong> Obtain confirmation of whether I process your data and receive a copy.</li>
+            <li><strong style={{ color: '#B0B0CC' }}>Right to rectification (Art. 16):</strong> Request correction of inaccurate personal data.</li>
+            <li><strong style={{ color: '#B0B0CC' }}>Right to erasure (Art. 17):</strong> Request deletion of your data, subject to any overriding legal retention obligation.</li>
+            <li><strong style={{ color: '#B0B0CC' }}>Right to restriction (Art. 18):</strong> Request that processing be restricted under certain circumstances.</li>
+            <li><strong style={{ color: '#B0B0CC' }}>Right to data portability (Art. 20):</strong> Receive your data in a structured, machine-readable format (applies where processing is based on consent or contract and is carried out by automated means).</li>
+            <li><strong style={{ color: '#B0B0CC' }}>Right to object (Art. 21):</strong> Object at any time to processing based on legitimate interest. I will cease processing unless I can demonstrate compelling legitimate grounds that override your interests, rights and freedoms, or for the establishment, exercise, or defence of legal claims.</li>
           </ul>
           <p style={body}>
             To exercise any of these rights, <ContactLink label="contact me by email" />.
-            I will respond within <strong style={{ color: '#F0F0F5' }}>30 days</strong> as required by Art. 12(3) GDPR.
+            I will respond within <strong style={{ color: '#F0F0F5' }}>one month</strong> of
+            receipt (Art. 12(3) GDPR). This period may be extended by a further two months where
+            necessary due to complexity or volume, in which case I will notify you within the
+            first month. No fee is charged unless requests are manifestly unfounded or excessive
+            (Art. 12(5) GDPR).
           </p>
 
-          {/* ── 9. Security ── */}
-          <h2 style={heading}>9. Data Security</h2>
+          {/* ── 6. Data Security ── */}
+          <h2 style={heading}>6. Data Security</h2>
           <p style={body}>
-            I implement appropriate technical and organizational measures to protect your personal
-            data against unauthorized access, alteration, disclosure, or destruction, in accordance
-            with Art. 32 GDPR. These measures include HTTPS encryption, access controls, and
-            regular security reviews.
+            I implement appropriate technical and organisational security measures in accordance
+            with Art. 32 GDPR. The Site is served exclusively over HTTPS (TLS). Email
+            correspondence is stored in a password-protected account with two-factor
+            authentication enabled. In the event of a personal data breach, I will notify
+            the competent supervisory authority without undue delay and, where feasible, within
+            72 hours of becoming aware of it (Art. 33 GDPR), and will inform affected individuals
+            where required by Art. 34 GDPR.
           </p>
 
-          {/* ── 10. Children ── */}
-          <h2 style={heading}>10. Children's Privacy</h2>
+          {/* ── 7. International Transfers ── */}
+          <h2 style={heading}>7. International Data Transfers</h2>
           <p style={body}>
-            This Site is not directed at children under the age of 16. I do not knowingly collect
-            personal data from children. If you believe a child has provided me with personal data,
-            please contact me so I can promptly delete it.
+            If the hosting provider or email provider transfers personal data outside the
+            European Economic Area (EEA), such transfers are made only where an adequate
+            level of protection is ensured — either through an EU Commission adequacy decision
+            (Art. 45 GDPR) or Standard Contractual Clauses approved by the European Commission
+            (Art. 46(2)(c) GDPR). You may request details of the safeguards in place by
+            contacting me.
           </p>
 
-          {/* ── 11. Supervisory Authority ── */}
-          <h2 style={heading}>11. Right to Lodge a Complaint</h2>
+          {/* ── 8. Children ── */}
+          <h2 style={heading}>8. Children's Privacy</h2>
           <p style={body}>
-            If you believe that your data protection rights have been violated, you have the right
-            to lodge a complaint with a supervisory authority under Art. 77 GDPR. In Italy, the
-            relevant authority is the <strong style={{ color: '#F0F0F5' }}>Garante per la protezione dei dati personali</strong>{' '}
-            (<a href="https://www.garanteprivacy.it" target="_blank" rel="noopener noreferrer" style={{ color: '#6E6EFF', textDecoration: 'none' }}>www.garanteprivacy.it</a>).
+            This Site is not directed at children under 16. I do not knowingly process personal
+            data from children. If you believe a child has sent me personal data without
+            appropriate consent, please contact me so that I can delete it without delay.
           </p>
 
-          {/* ── 12. Changes ── */}
-          <h2 style={heading}>12. Changes to This Policy</h2>
+          {/* ── 9. Supervisory Authority ── */}
+          <h2 style={heading}>9. Right to Lodge a Complaint</h2>
           <p style={body}>
-            I reserve the right to update this Privacy Policy at any time. Changes will be posted
-            on this page with an updated "Last updated" date. Material changes will be communicated
-            where feasible. Continued use of the Site after changes constitutes acceptance of the
-            revised policy.
+            If you consider that the processing of your personal data infringes the GDPR, you
+            have the right to lodge a complaint with a supervisory authority — in particular in
+            the EU Member State of your habitual residence, place of work, or place of the
+            alleged infringement (Art. 77 GDPR).
+          </p>
+          <p style={body}>
+            As this controller is established in Italy, the lead supervisory authority is the{' '}
+            <strong style={{ color: '#F0F0F5' }}>Garante per la protezione dei dati personali</strong>
+            {' '}(<a href="https://www.garanteprivacy.it" target="_blank" rel="noopener noreferrer" style={{ color: '#6E6EFF', textDecoration: 'none' }}>www.garanteprivacy.it</a>).
+            Exercising this right does not affect any other administrative or judicial remedy
+            available to you.
           </p>
 
-          {/* ── 13. Contact ── */}
-          <h2 style={heading}>13. Contact</h2>
+          {/* ── 10. Changes ── */}
+          <h2 style={heading}>10. Changes to This Policy</h2>
           <p style={body}>
-            For any privacy-related inquiries or data subject requests, contact:<br />
+            I may update this Privacy Policy to reflect changes in the Site or in applicable
+            law. The "Last updated" date at the top of this page will be revised accordingly.
+            Where changes are material, I will take reasonable steps to draw them to your
+            attention. Prior versions are available on request.
+          </p>
+          <p style={body}>
+            Continued use of the Site after an update does not constitute consent to revised
+            terms. Where GDPR requires consent, it will always be obtained separately and
+            explicitly.
+          </p>
+
+          {/* ── 11. Contact ── */}
+          <h2 style={heading}>11. Contact</h2>
+          <p style={body}>
+            For any privacy-related questions or to exercise your data subject rights:<br />
             <strong style={{ color: '#F0F0F5' }}>Vittoria Lanzo</strong><br />
             Email: <ContactLink label="lanzo [dot] vittoria [at] gmail [dot] com" />
           </p>
