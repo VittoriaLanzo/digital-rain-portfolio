@@ -21,7 +21,7 @@ export default function HeroDistrict() {
     let i = 0;
     let typeId: ReturnType<typeof setInterval> | null = null;
     let pauseId: ReturnType<typeof setTimeout> | null = null;
-    let eraseId: ReturnType<typeof setInterval> | null = null;
+    const eraseId: ReturnType<typeof setInterval> | null = null;
 
     typeId = setInterval(() => {
       setDisplayText(role.slice(0, i + 1));

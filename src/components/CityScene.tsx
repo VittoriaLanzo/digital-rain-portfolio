@@ -1,4 +1,5 @@
 import { useRef, useMemo, useEffect, useState, useCallback, Suspense } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Canvas, useFrame, useThree, ThreeEvent } from '@react-three/fiber';
 import { Stars, Text, Html } from '@react-three/drei';
 import * as THREE from 'three';
@@ -175,12 +176,18 @@ function Building({ data, brickMap }: { data: BuildingData; brickMap: THREE.Text
   const groupRef = useRef<THREE.Group>(null);
   const antennaRef = useRef<THREE.Mesh>(null);
   const faceZ = side * (d / 2 + 0.01);
-  const [lod, setLod] = useState<0 | 1 | 2>(2);
+
+  /* LOD is tracked in a ref — no React re-render on change */
+  const lodRef = useRef<0 | 1 | 2>(2);
+  const lodGroupFar  = useRef<THREE.Group>(null);
+  const lodGroupMid  = useRef<THREE.Group>(null);
+  const lodGroupFull = useRef<THREE.Group>(null);
 
   // Rotation for planes on the road-facing X-face: face toward road
-  // roadFaceDir=+1 means face points +X → rotate plane -PI/2 around Y
-  // roadFaceDir=-1 means face points -X → rotate plane +PI/2 around Y
   const roadFaceRotY = -roadFaceDir * Math.PI / 2;
+
+  /* Mid LOD uses every-other road window */
+  const midRoadWindows = useMemo(() => roadWindows.filter((_, i) => i % 2 === 0), [roadWindows]);
 
   useFrame(({ camera, clock }) => {
     if (!groupRef.current) return;
@@ -188,8 +195,13 @@ function Building({ data, brickMap }: { data: BuildingData; brickMap: THREE.Text
     const dz = camera.position.z - pos[2];
     const dist = Math.sqrt(dx * dx + dz * dz);
     const newLod: 0 | 1 | 2 = dist < LOD_NEAR ? 0 : dist < LOD_MID ? 1 : 2;
-    if (newLod !== lod) setLod(newLod);
-    if (antennaRef.current && hasAntenna && lod === 0) {
+    if (newLod !== lodRef.current) {
+      lodRef.current = newLod;
+      if (lodGroupFar.current)  lodGroupFar.current.visible  = newLod === 2;
+      if (lodGroupMid.current)  lodGroupMid.current.visible  = newLod === 1;
+      if (lodGroupFull.current) lodGroupFull.current.visible = newLod === 0;
+    }
+    if (antennaRef.current && hasAntenna && lodRef.current === 0) {
       const intensity = 2 + Math.sin(clock.getElapsedTime() * 3) * 3;
       (antennaRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity = Math.max(0, intensity);
     }
@@ -210,15 +222,15 @@ function Building({ data, brickMap }: { data: BuildingData; brickMap: THREE.Text
   const totalWindows = windows.length + roadWindows.length;
   const litRatio = totalWindows > 0 ? litWindowCount / totalWindows : 0;
 
-  // ═══ FAR LOD ═══
-  if (lod === 2) {
-    return (
-      <group ref={groupRef} position={pos}>
+  return (
+    <group ref={groupRef} position={pos}>
+
+      {/* ═══ FAR LOD — visible by default ═══ */}
+      <group ref={lodGroupFar}>
         <mesh frustumCulled>
           <boxGeometry args={[w, h, d]} />
           <meshStandardMaterial map={brickMap} roughness={0.75} metalness={0.1} color="#CCDDCC" emissive="#00FF88" emissiveIntensity={litRatio * 0.2} />
         </mesh>
-        {/* Road-facing trim */}
         {trims.length > 0 && (
           <mesh position={[roadFaceX + roadFaceDir * 0.03, trims[0].y - h / 2, 0]} rotation={[0, roadFaceRotY, 0]}>
             <planeGeometry args={[d, 0.12]} />
@@ -226,14 +238,9 @@ function Building({ data, brickMap }: { data: BuildingData; brickMap: THREE.Text
           </mesh>
         )}
       </group>
-    );
-  }
 
-  // ═══ MID LOD ═══
-  if (lod === 1) {
-    const midRoadWindows = roadWindows.filter((_, i) => i % 2 === 0);
-    return (
-      <group ref={groupRef} position={pos}>
+      {/* ═══ MID LOD ═══ */}
+      <group ref={lodGroupMid} visible={false}>
         <mesh frustumCulled>
           <boxGeometry args={[w, h, d]} />
           <meshStandardMaterial map={brickMap} roughness={0.75} metalness={0.1} color="#CCDDCC" emissive="#001A00" emissiveIntensity={0.4} />
@@ -242,14 +249,12 @@ function Building({ data, brickMap }: { data: BuildingData; brickMap: THREE.Text
           <boxGeometry args={[w + 0.2, 0.3, d + 0.2]} />
           <meshStandardMaterial color="#333333" roughness={0.5} metalness={0.6} />
         </mesh>
-        {/* Road-facing trims */}
         {trims.map((trim, i) => (
           <mesh key={`rt${i}`} position={[roadFaceX + roadFaceDir * 0.03, trim.y - h / 2, 0]} rotation={[0, roadFaceRotY, 0]}>
             <planeGeometry args={[d, 0.12]} />
             <meshStandardMaterial color="#000" emissive={trim.color} emissiveIntensity={4} side={THREE.DoubleSide} />
           </mesh>
         ))}
-        {/* Road-facing windows */}
         {midRoadWindows.map((win, i) => (
           <mesh key={`rw${i}`} position={[roadFaceX + roadFaceDir * 0.02, win.y, win.z]} rotation={[0, roadFaceRotY, 0]}>
             <planeGeometry args={[0.55, 0.75]} />
@@ -262,7 +267,6 @@ function Building({ data, brickMap }: { data: BuildingData; brickMap: THREE.Text
             />
           </mesh>
         ))}
-        {/* Z-face trims */}
         {trims.map((trim, i) => (
           <mesh key={`t${i}`} position={[0, trim.y - h / 2, side * (d / 2 + 0.04)]}>
             <boxGeometry args={[w, 0.12, 0.08]} />
@@ -274,12 +278,9 @@ function Building({ data, brickMap }: { data: BuildingData; brickMap: THREE.Text
           <meshStandardMaterial color="#181820" metalness={0.7} roughness={0.5} />
         </mesh>
       </group>
-    );
-  }
 
-  // ═══ FULL LOD ═══
-  return (
-    <group ref={groupRef} position={pos}>
+      {/* ═══ FULL LOD ═══ */}
+      <group ref={lodGroupFull} visible={false}>
       <mesh frustumCulled>
         <boxGeometry args={[w, h, d]} />
         <meshStandardMaterial map={brickMap} roughness={0.75} metalness={0.1} color="#CCDDCC" emissive="#001A00" emissiveIntensity={0.4} />
@@ -480,12 +481,13 @@ function Building({ data, brickMap }: { data: BuildingData; brickMap: THREE.Text
           </mesh>
         </group>
       )}
+      </group>{/* lodGroupFull */}
     </group>
   );
 }
 
 /* ─── Final Refined Victorian Street Lamp ─── */
-function StreetLamp({ position, side }: { position: [number, number, number]; side: number }) {
+function StreetLamp({ position, side, isMobile }: { position: [number, number, number]; side: number; isMobile: boolean }) {
   const lampColor = "#050505";
   const lightColor = "#ffbb55";
   const lanternX = side * -1.2;
@@ -540,8 +542,8 @@ function StreetLamp({ position, side }: { position: [number, number, number]; si
           <meshStandardMaterial color={lampColor} />
         </mesh>
 
-        {/* 4. LIGHTING: One PointLight for the glow, one SpotLight for the wall shading */}
-        <pointLight intensity={80} distance={15} color={lightColor} decay={2} />
+        {/* 4. LIGHTING: disabled on mobile to cut simultaneous light count */}
+        {!isMobile && <pointLight intensity={80} distance={15} color={lightColor} decay={2} />}
       </group>
 
       {/* 5. GROUND LIGHT GRADIENT */}
@@ -1162,7 +1164,7 @@ function RainParticles({ count = 800 }: { count?: number }) {
 /* ─── Floating Dust ─── */
 function FloatingDust() {
   const ref = useRef<THREE.InstancedMesh>(null);
-  const count = 200;
+  const count = 60;
   const speeds = useMemo(() => Array.from({ length: count }, () => 0.005 + Math.random() * 0.015), []);
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
@@ -1464,15 +1466,15 @@ function NavigationStalls({ onStallClick }: { onStallClick: (id: string) => void
             </div>
           </Html>
 
-          {/* ── Invisible hit mesh — guarantees clicks reach the group regardless of Html overlay ── */}
+          {/* ── Invisible hit volume — full kiosk extent so any click on the stall body works ── */}
           <mesh
-            position={[0, 1.225 * S, 0.15 * S]}
+            position={[0, 1.165 * S, 0]}
             onClick={(e) => { e.stopPropagation(); onStallClick(stall.id); }}
             onPointerOver={(e) => { e.stopPropagation(); document.body.style.cursor = 'pointer'; }}
             onPointerOut={(e) => { e.stopPropagation(); document.body.style.cursor = 'none'; }}
           >
-            <planeGeometry args={[1.8 * S, 2.6 * S]} />
-            <meshBasicMaterial transparent opacity={0.001} depthWrite={false} side={THREE.DoubleSide} />
+            <boxGeometry args={[1.9 * S, 2.33 * S, 0.9 * S]} />
+            <meshBasicMaterial transparent opacity={0} depthWrite={false} />
           </mesh>
 
           {/* ── Point lights ── */}
@@ -1489,6 +1491,7 @@ function NavigationStalls({ onStallClick }: { onStallClick: (id: string) => void
 
 /* ─── Street Props ─── */
 function StreetProps({ isMobile }: { isMobile: boolean }) {
+  const navigate = useNavigate();
   const props = useMemo(() => {
     const trashCans: { pos: [number, number, number]; tipped: boolean }[] = [];
     let trashSide = 1;
@@ -1614,7 +1617,7 @@ function StreetProps({ isMobile }: { isMobile: boolean }) {
           <mesh
             position={mh}
             rotation={[-Math.PI / 2, 0, 0]}
-            onClick={i === 0 ? (e: ThreeEvent<MouseEvent>) => { e.stopPropagation(); window.location.href = '/privacy'; } : undefined}
+            onClick={i === 0 ? (e: ThreeEvent<MouseEvent>) => { e.stopPropagation(); navigate('/privacy'); } : undefined}
             onPointerOver={i === 0 ? () => { document.body.style.cursor = 'pointer'; } : undefined}
             onPointerOut={i === 0 ? () => { document.body.style.cursor = ''; } : undefined}
           >
@@ -1696,7 +1699,7 @@ function StreetProps({ isMobile }: { isMobile: boolean }) {
 function SteamVents() {
   const ventsRef = useRef<THREE.InstancedMesh>(null);
   const ventCount = 4;
-  const particlesPerVent = 50;
+  const particlesPerVent = 15;
   const totalParticles = ventCount * particlesPerVent;
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
@@ -1758,18 +1761,18 @@ function SteamVents() {
 /* ─── Overhead Cables ─── */
 function OverheadCables() {
   const cables = useMemo(() => {
-    const result: { points: THREE.Vector3[] }[] = [];
+    const result: { curve: THREE.CatmullRomCurve3 }[] = [];
     for (let z = 10; z > -180; z -= 30) {
       const leftX = -(12 + Math.random() * 3);
       const rightX = 12 + Math.random() * 3;
       const y = 12 + Math.random() * 8;
       const droopY = y - 1.5 - Math.random() * 2;
       result.push({
-        points: [
+        curve: new THREE.CatmullRomCurve3([
           new THREE.Vector3(leftX, y, z),
           new THREE.Vector3(0, droopY, z),
           new THREE.Vector3(rightX, y, z),
-        ],
+        ]),
       });
     }
     return result;
@@ -1777,15 +1780,12 @@ function OverheadCables() {
 
   return (
     <>
-      {cables.map((cable, i) => {
-        const curve = new THREE.CatmullRomCurve3(cable.points);
-        return (
-          <mesh key={`cable${i}`}>
-            <tubeGeometry args={[curve, 20, 0.015, 4, false]} />
-            <meshStandardMaterial color="#0A0A0A" metalness={0.9} roughness={0.3} />
-          </mesh>
-        );
-      })}
+      {cables.map((cable, i) => (
+        <mesh key={`cable${i}`}>
+          <tubeGeometry args={[cable.curve, 20, 0.015, 4, false]} />
+          <meshStandardMaterial color="#0A0A0A" metalness={0.9} roughness={0.3} />
+        </mesh>
+      ))}
     </>
   );
 }
@@ -1958,7 +1958,7 @@ function CityEnvironment({ onStallClick }: { onStallClick: (id: string) => void 
       ))}
 
       {streetLamps.map((l, i) => (
-        <StreetLamp key={`lamp-${i}`} position={l.pos} side={l.side} />
+        <StreetLamp key={`lamp-${i}`} position={l.pos} side={l.side} isMobile={isMobile} />
       ))}
 
       {neonAccents.map((a, i) => (
@@ -1988,7 +1988,7 @@ function CityEnvironment({ onStallClick }: { onStallClick: (id: string) => void 
       {!isMobile && <OverheadCables />}
       {!isMobile && <BackgroundBuildings />}
 
-      <RainParticles count={isMobile ? 40 : 300} />
+      <RainParticles count={isMobile ? 40 : 120} />
       {!isMobile && <FloatingDust />}
       <Stars radius={200} depth={60} count={isMobile ? 400 : 1200} factor={4} saturation={0} />
       <CityGlowDome />
@@ -2003,11 +2003,8 @@ function CityEnvironment({ onStallClick }: { onStallClick: (id: string) => void 
       <directionalLight position={[5, 20, 10]} color="#00FF88" intensity={1.5} />
       <pointLight position={[0, 5, -100]} color={NEON_CYAN} intensity={4} distance={25} decay={2} />
 
-      {/* Street-level fill lights for road-facing facades */}
-      <pointLight position={[0, 10, 0]} color="#FFFFFF" intensity={1.2} distance={50} decay={2} />
-      <pointLight position={[0, 10, -60]} color="#FFFFFF" intensity={1.2} distance={50} decay={2} />
-      <pointLight position={[0, 10, -120]} color="#FFFFFF" intensity={1.2} distance={50} decay={2} />
-      <pointLight position={[0, 10, -180]} color="#FFFFFF" intensity={1.2} distance={50} decay={2} />
+      {/* Street-level fill: single directional replaces 4 point lights */}
+      <directionalLight position={[0, 10, -90]} color="#FFFFFF" intensity={1.2} />
     </>
   );
 }

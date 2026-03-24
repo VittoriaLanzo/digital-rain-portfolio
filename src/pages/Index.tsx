@@ -131,29 +131,32 @@ function GlassPanel({ visible, side, stallSide, color, onEnter, children }: Glas
   const arrowDir = stallSide === 'left' ? '←' : '→';
 
   return (
-    <div style={{
-      position: 'fixed',
-      bottom: '24px',
-      left:  side === 'left'  ? '24px' : 'auto',
-      right: side === 'right' ? '24px' : 'auto',
-      transform: visible
-        ? 'translateX(0)'
-        : `translateX(${side === 'left' ? '-120%' : '120%'})`,
-      opacity: visible ? 1 : 0,
-      transition: 'transform 600ms cubic-bezier(0.16, 1, 0.3, 1), opacity 400ms ease',
-      pointerEvents: visible ? 'auto' : 'none',
-      zIndex: 50,
-      width: '340px',
-      maxWidth: '38vw',
-      maxHeight: '54vh',
-      overflowY: 'auto',
-      background: 'rgba(5, 5, 18, 0.84)',
-      backdropFilter: 'blur(20px)',
-      WebkitBackdropFilter: 'blur(20px)',
-      border: '1px solid rgba(110, 110, 255, 0.18)',
-      borderRadius: '8px',
-      boxShadow: '0 0 0 1px rgba(255,255,255,0.03), 0 -4px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)',
-    }}>
+    <div
+      onClick={onEnter}
+      style={{
+        position: 'fixed',
+        bottom: '24px',
+        left:  side === 'left'  ? '24px' : 'auto',
+        right: side === 'right' ? '24px' : 'auto',
+        transform: visible
+          ? 'translateX(0)'
+          : `translateX(${side === 'left' ? '-120%' : '120%'})`,
+        opacity: visible ? 1 : 0,
+        transition: 'transform 600ms cubic-bezier(0.16, 1, 0.3, 1), opacity 400ms ease',
+        pointerEvents: visible ? 'auto' : 'none',
+        zIndex: 50,
+        width: '340px',
+        maxWidth: '38vw',
+        maxHeight: '54vh',
+        overflowY: 'auto',
+        background: 'rgba(5, 5, 18, 0.84)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        border: '1px solid rgba(110, 110, 255, 0.18)',
+        borderRadius: '8px',
+        boxShadow: '0 0 0 1px rgba(255,255,255,0.03), 0 -4px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)',
+        cursor: 'pointer',
+      }}>
       {/* Top glow line */}
       <div style={{ height: '1px', background: `linear-gradient(90deg, transparent, ${color}55, transparent)` }} />
 
@@ -162,7 +165,7 @@ function GlassPanel({ visible, side, stallSide, color, onEnter, children }: Glas
 
         {/* ── Enter CTA ── */}
         <button
-          onClick={onEnter}
+          onClick={e => { e.stopPropagation(); onEnter(); }}
           style={{
             marginTop: '20px',
             width: '100%',
@@ -290,7 +293,7 @@ function WorkPanel({ visible, onEnter }: { visible: boolean; onEnter: () => void
       {WORK.projects.map((p, i) => (
         <div
           key={p.id}
-          onClick={() => navigate(`/work/${p.slug}`)}
+          onClick={e => { e.stopPropagation(); navigate(`/work/${p.slug}`); }}
           style={{ paddingTop: i === 0 ? '0' : '16px', paddingBottom: '16px', borderBottom: '1px solid #1E1E2E', cursor: 'pointer' }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -484,12 +487,6 @@ function BillboardFormOverlay({ visible }: { visible: boolean }) {
       transform: visible ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(48px)',
       zIndex: 100, opacity: visible ? 1 : 0,
       pointerEvents: visible ? 'auto' : 'none',
-      transition: 'opacity 600ms cubic-bezier(0.16, 1, 0.3, 1), transform 600ms cubic-bezier(0.16, 1, 0.3, 1)',
-      width: '440px', maxWidth: '90vw', maxHeight: '88vh', overflowY: 'auto',
-      background: 'rgba(4,4,14,0.97)',
-      border: '1px solid rgba(0,212,255,0.15)', borderRadius: '14px', padding: '28px 32px',
-      boxShadow: '0 24px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.02), inset 0 1px 0 rgba(0,212,255,0.07)',
-      backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
       transition: 'opacity 500ms ease, transform 500ms ease',
       width: '460px', maxWidth: '92vw', maxHeight: '85vh', overflowY: 'auto',
       background: 'rgba(4,4,12,0.96)',
