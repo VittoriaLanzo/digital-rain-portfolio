@@ -1,4 +1,5 @@
 import { useRef, useMemo, useEffect, useState, useCallback, Suspense } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Canvas, useFrame, useThree, ThreeEvent } from '@react-three/fiber';
 import { Stars, Text, Html } from '@react-three/drei';
 import * as THREE from 'three';
@@ -1489,6 +1490,7 @@ function NavigationStalls({ onStallClick }: { onStallClick: (id: string) => void
 
 /* ─── Street Props ─── */
 function StreetProps({ isMobile }: { isMobile: boolean }) {
+  const navigate = useNavigate();
   const props = useMemo(() => {
     const trashCans: { pos: [number, number, number]; tipped: boolean }[] = [];
     let trashSide = 1;
@@ -1614,7 +1616,7 @@ function StreetProps({ isMobile }: { isMobile: boolean }) {
           <mesh
             position={mh}
             rotation={[-Math.PI / 2, 0, 0]}
-            onClick={i === 0 ? (e: ThreeEvent<MouseEvent>) => { e.stopPropagation(); window.location.href = '/privacy'; } : undefined}
+            onClick={i === 0 ? (e: ThreeEvent<MouseEvent>) => { e.stopPropagation(); navigate('/privacy'); } : undefined}
             onPointerOver={i === 0 ? () => { document.body.style.cursor = 'pointer'; } : undefined}
             onPointerOut={i === 0 ? () => { document.body.style.cursor = ''; } : undefined}
           >
