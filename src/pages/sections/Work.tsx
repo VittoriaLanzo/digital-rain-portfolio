@@ -45,6 +45,24 @@ export default function Work() {
             }}>
               <div style={{ flex: 1 }}>
 
+                {/* Award badge */}
+                {p.award && (
+                  <div style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    fontFamily: "'Syne', sans-serif",
+                    fontSize: '9px',
+                    letterSpacing: '0.18em',
+                    color: COLOR,
+                    border: `1px solid ${COLOR}55`,
+                    borderRadius: '3px',
+                    padding: '3px 8px',
+                    marginBottom: '10px',
+                  }}>
+                    {p.award}
+                  </div>
+                )}
+
                 {/* Number + year */}
                 <div style={{
                   fontFamily: "'Syne', sans-serif",

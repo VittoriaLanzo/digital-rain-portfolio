@@ -36,6 +36,8 @@ export interface Project {
   slug: string;
   name: string;
   year: string;
+  /** Optional award badge displayed prominently above the project name */
+  award?: string;
   desc: string;
   /** Extended description shown on the project detail page */
   longDesc?: string;
@@ -133,7 +135,8 @@ export const WORK = {
       slug: 'sestara',
       name: 'Sestara',
       year: '2025',
-      desc: "Silver Medal — 2nd place overall out of 925 participants at the MEGA Hackathon. Sestara is an AI-powered edtech platform that generates your personal study roadmap, tracks every topic, and quizzes you until you actually know it — with a 22-minute average session to prove it works.",
+      award: 'Silver Medal · 2nd Place Overall · MEGA Hackathon · 925 Participants',
+      desc: "An AI-powered edtech platform that generates your personal study roadmap, tracks every topic, and quizzes you until you actually know it — with a 22-minute average session to prove it works.",
       longDesc: `Silver Medal. 2nd place overall. 925 participants. MEGA Hackathon.
 
 That is the context for everything that follows. Sestara did not place second in a small room — it competed against 925 participants at the MEGA Hackathon, a global event integrating computer science, AI, and STEM aimed at advancing human development, and it took the Silver Medal. The product that earned that result is described below.

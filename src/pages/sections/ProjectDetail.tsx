@@ -84,6 +84,25 @@ export default function ProjectDetail() {
           {project.name}
         </h1>
 
+        {/* Award badge */}
+        {project.award && (
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            fontFamily: "'Syne', sans-serif",
+            fontSize: '10px',
+            letterSpacing: '0.18em',
+            color: COLOR,
+            border: `1px solid ${COLOR}55`,
+            borderRadius: '4px',
+            padding: '5px 12px',
+            marginBottom: '32px',
+            background: `${COLOR}0D`,
+          }}>
+            {project.award}
+          </div>
+        )}
+
         {/* Stack chips */}
         {project.stack.length > 0 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '40px' }}>
