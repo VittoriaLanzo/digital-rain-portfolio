@@ -132,7 +132,10 @@ export default function ProjectDetail() {
           {project.desc}
         </p>
 
-        {/* Certification image */}
+        {/* Certification image — only renders when project.certImage is set.
+            Source file lives in public/certs/. The label above the image
+            ("AWARD CERTIFICATE") uses the same muted Syne style as other
+            section labels. The image fills the container width at full res. */}
         {project.certImage && (
           <div style={{ marginBottom: '48px' }}>
             <div style={{

@@ -137,8 +137,11 @@ export const WORK = {
       slug: 'sestara',
       name: 'Sestara',
       year: '2025',
+      // Renders as a cyan badge above the project name in the list and detail page
       award: 'Silver Medal · 2nd Place Overall · MEGA Hackathon 2026 · 925 Participants',
-      certImage: '/certs/sestara-cert.png', // drop the image in public/certs/ to activate
+      // To show the cert: place the image at public/certs/sestara-cert.png
+      // Supports any format (.png, .jpg, .webp). Remove this line to hide the block.
+      certImage: '/certs/sestara-cert.png',
       desc: "An AI-powered edtech platform that generates your personal study roadmap, tracks every topic, and quizzes you until you actually know it — with a 22-minute average session to prove it works.",
       longDesc: `Silver Medal. 2nd place overall. 925 participants. MEGA Hackathon.
 
